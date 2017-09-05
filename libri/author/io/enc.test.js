@@ -18,11 +18,13 @@ test('encrypt + decrypt = original', async () => {
   expect.assertions(nPages);
 
   for (let pageIndex = 0; pageIndex < nPages; pageIndex++) {
-    await expect(
-        enc.encrypt(aesKey, ivSeed, original, pageIndex).then((ciphertext) => {
-          return enc.decrypt(aesKey, ivSeed, ciphertext, pageIndex)
-        })
-    ).resolves.toEqual(original);
+    await aesKey.then(aesKey2 => {
+      return expect(
+          enc.encrypt(aesKey2, ivSeed, original, pageIndex).then(ciphertext => {
+            return enc.decrypt(aesKey2, ivSeed, ciphertext, pageIndex)
+          })
+      ).resolves.toEqual(original)
+    })
   }
 });
 
@@ -37,8 +39,10 @@ test('hmac gives expected results', () => {
   );
   expect.assertions(1);
   return expect(
-      enc.hmac(key, message).then((mac) => {
-        return new Uint8Array(mac)
+      key.then((key2) => {
+        return enc.hmac(key2, message).then((mac) => {
+          return new Uint8Array(mac)
+        })
       })
   ).resolves.toEqual(
       /*
