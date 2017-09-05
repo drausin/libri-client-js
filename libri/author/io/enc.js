@@ -45,18 +45,12 @@ function decrypt(aesKey, ivSeed, ciphertext, pageIndex) {
 /**
  * Calculate the SHA-256 HMAC of a message with a given key.
  *
- * @param {ArrayBuffer} key - key to use for HMAC
+ * @param {Promise.<CryptoKey>} key - key to use for HMAC
  * @param {ArrayBuffer} message - the message to digest
  * @returns {Promise.<ArrayBuffer>} - message HMAC
  */
 function hmac(key, message) {
-  return webcrypto.importKey(
-      "raw",
-      key,
-      {name: "HMAC", hash: {name: "SHA-256"}},
-      false,
-      ["sign"]
-  ).then(function (wcKey) {
+  return key.then(function (wcKey) {
     return webcrypto.sign({name: "HMAC"}, wcKey, message)
   })
 }
@@ -76,7 +70,14 @@ function generatePageIV(ivSeed, pageIndex) {
     (pageIndex >> 8) & 255,
     pageIndex & 255,
   ]).buffer;
-  return hmac(pageIndexBytes, ivSeed)
+  const ivSeedKey = webcrypto.importKey(
+      "raw",
+      ivSeed,
+      {name: "HMAC", hash: {name: "SHA-256"}},
+      false,
+      ["sign"]
+  );
+  return hmac(ivSeedKey, pageIndexBytes)
 }
 
 export {

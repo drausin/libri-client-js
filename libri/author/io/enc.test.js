@@ -28,7 +28,13 @@ test('encrypt + decrypt = original', async () => {
 
 test('hmac gives expected results', () => {
   const message = new Uint8Array([0, 1, 2, 3, 4, 5]).buffer;
-  const key = new Uint8Array([2, 2, 2, 2]).buffer;
+  const key = webcrypto.importKey(
+      "raw",
+      new Uint8Array([2, 2, 2, 2]).buffer,
+      {name: "HMAC", hash: {name: "SHA-256"}},
+      false,
+      ["sign"]
+  );
   expect.assertions(1);
   return expect(
       enc.hmac(key, message).then((mac) => {
