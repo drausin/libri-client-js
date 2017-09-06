@@ -1,3 +1,5 @@
+// @flow
+
 import pako from 'pako';
 import * as contentType from 'content-type';
 
@@ -16,11 +18,11 @@ const mediaToCompressionCodec = {
 /**
  * Get the compression codec to use for a given media type.
  *
- * @param {String} mediaType
- * @return {String}
+ * @param {string} mediaType
+ * @return {string}
  * @public
  */
-function getCompressionCodec(mediaType) {
+function getCompressionCodec(mediaType: string): string {
   if (mediaType === '') {
     return defaultCodec;
   }
@@ -35,11 +37,11 @@ function getCompressionCodec(mediaType) {
  * Compress some data all at once (as opposed to streaming).
  *
  * @param {Uint8Array} uncompressed - data to be compressed
- * @param {String} codec - compression codec to use
+ * @param {string} codec - compression codec to use
  * @return {Uint8Array} compressed data
  * @public
  */
-function compress(uncompressed, codec) {
+function compress(uncompressed: Uint8Array, codec: string): Uint8Array {
   if (codec === noneCodec) {
     return uncompressed;
   }
@@ -53,11 +55,11 @@ function compress(uncompressed, codec) {
  * Decompress some compressed data all at once (as opposed to streaming).
  *
  * @param {Uint8Array} compressed - data to be decompressed
- * @param {String} codec - (de)compression codec to use
+ * @param {string} codec - (de)compression codec to use
  * @return {Uint8Array} decompressed data
  * @public
  */
-function decompress(compressed, codec) {
+function decompress(compressed: Uint8Array, codec: string): Uint8Array {
   if (codec === noneCodec) {
     return compressed;
   }
