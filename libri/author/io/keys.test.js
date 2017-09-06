@@ -1,18 +1,16 @@
-'use strict';
-
 // polyfill webcrypto for tests
 const WebCrypto = require('node-webcrypto-ossl');
 window.crypto = new WebCrypto();
 
-const keys = require("./keys");
+const keys = require('./keys');
 
-test("marshalEEK + unmarshallEEK = original", async () => {
+test('marshalEEK + unmarshallEEK = original', async () => {
   expect.assertions(1);
   return keys.newEEK().then((original) => {
     return expect(
         keys.marshallEEK(original).then((marshalled) => {
-          return keys.unmarshalEEK(marshalled)
+          return keys.unmarshalEEK(marshalled);
         })
-    ).resolves.toEqual(original)
+    ).resolves.toEqual(original);
   });
 });

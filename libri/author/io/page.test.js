@@ -1,14 +1,11 @@
-"use strict";
-
 // polyfill webcrypto for tests
 const WebCrypto = require('node-webcrypto-ossl');
 window.crypto = new WebCrypto();
 
-const comp = require("./comp");
-const keys = require("./keys");
+const keys = require('./keys');
 const page = require('./page');
 
-test("paginate + unpaginate = original", async () => {
+test('paginate + unpaginate = original', async () => {
   const compressedSizes = [32, 64, 128, 192, 256, 384, 512, 768, 1024, 2048,
     4096, 8192];
   const pageSizes = [128, 256, 512, 1024];
@@ -25,10 +22,10 @@ test("paginate + unpaginate = original", async () => {
         return expect(
             page.paginate(
                 original, eekKeys2, authorPub, pageSizes[0]
-            ).then(pages => {
-              return page.unpaginate(pages, eekKeys2)
+            ).then((pages) => {
+              return page.unpaginate(pages, eekKeys2);
             })
-        ).resolves.toEqual(original)
+        ).resolves.toEqual(original);
       });
     }
   }

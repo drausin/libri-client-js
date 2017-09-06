@@ -1,5 +1,3 @@
-'use strict';
-
 import pako from 'pako';
 import * as contentType from 'content-type';
 
@@ -19,18 +17,18 @@ const mediaToCompressionCodec = {
  * Get the compression codec to use for a given media type.
  *
  * @param {String} mediaType
- * @returns {String}
+ * @return {String}
  * @public
  */
 function getCompressionCodec(mediaType) {
   if (mediaType === '') {
-    return defaultCodec
+    return defaultCodec;
   }
   const parsedType = contentType.parse(mediaType).type;
   if (parsedType in mediaToCompressionCodec) {
-    return mediaToCompressionCodec[parsedType]
+    return mediaToCompressionCodec[parsedType];
   }
-  return defaultCodec
+  return defaultCodec;
 }
 
 /**
@@ -38,17 +36,17 @@ function getCompressionCodec(mediaType) {
  *
  * @param {Uint8Array} uncompressed - data to be compressed
  * @param {String} codec - compression codec to use
- * @returns {Uint8Array} compressed data
+ * @return {Uint8Array} compressed data
  * @public
  */
 function compress(uncompressed, codec) {
   if (codec === noneCodec) {
-    return uncompressed
+    return uncompressed;
   }
   if (codec === gzipCodec) {
-    return pako.gzip(uncompressed)
+    return pako.gzip(uncompressed);
   }
-  throw new TypeError('unknown compression codec')
+  throw new TypeError('unknown compression codec');
 }
 
 /**
@@ -56,17 +54,17 @@ function compress(uncompressed, codec) {
  *
  * @param {Uint8Array} compressed - data to be decompressed
  * @param {String} codec - (de)compression codec to use
- * @returns {Uint8Array} decompressed data
+ * @return {Uint8Array} decompressed data
  * @public
  */
 function decompress(compressed, codec) {
   if (codec === noneCodec) {
-    return compressed
+    return compressed;
   }
   if (codec === gzipCodec) {
-    return pako.inflate(compressed)
+    return pako.inflate(compressed);
   }
-  throw new TypeError('unknown compression codec')
+  throw new TypeError('unknown compression codec');
 }
 
 export {

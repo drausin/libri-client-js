@@ -8,9 +8,9 @@ const webcrypto = window.crypto.subtle;
 
 test('encrypt + decrypt = original', async () => {
   const aesKey = webcrypto.generateKey(
-      {name: "AES-GCM", length: 256},
+      {name: 'AES-GCM', length: 256},
       true,
-      ["encrypt", "decrypt"],
+      ['encrypt', 'decrypt'],
   );
   const original = new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer;
   const ivSeed = new Uint8Array([1, 1, 1, 1, 1]).buffer;
@@ -18,31 +18,33 @@ test('encrypt + decrypt = original', async () => {
   expect.assertions(nPages);
 
   for (let pageIndex = 0; pageIndex < nPages; pageIndex++) {
-    await aesKey.then(aesKey2 => {
+    await aesKey.then((aesKey2) => {
       return expect(
-          enc.encrypt(aesKey2, ivSeed, original, pageIndex).then(ciphertext => {
-            return enc.decrypt(aesKey2, ivSeed, ciphertext, pageIndex)
-          })
-      ).resolves.toEqual(original)
-    })
+          enc.encrypt(aesKey2, ivSeed, original, pageIndex).then(
+              (ciphertext) => {
+                return enc.decrypt(aesKey2, ivSeed, ciphertext, pageIndex);
+              }
+          )
+      ).resolves.toEqual(original);
+    });
   }
 });
 
 test('hmac gives expected results', () => {
   const message = new Uint8Array([0, 1, 2, 3, 4, 5]).buffer;
   const key = webcrypto.importKey(
-      "raw",
+      'raw',
       new Uint8Array([2, 2, 2, 2]).buffer,
-      {name: "HMAC", hash: {name: "SHA-256"}},
+      {name: 'HMAC', hash: {name: 'SHA-256'}},
       false,
-      ["sign"]
+      ['sign']
   );
   expect.assertions(1);
   return expect(
       key.then((key2) => {
         return enc.hmac(key2, message).then((mac) => {
-          return new Uint8Array(mac)
-        })
+          return new Uint8Array(mac);
+        });
       })
   ).resolves.toEqual(
       /*
@@ -57,5 +59,5 @@ test('hmac gives expected results', () => {
         199, 206, 115, 28, 53, 68, 75, 26, 182, 248, 218, 155, 216, 188, 119,
         97, 228,
       ])
-  )
+  );
 });
