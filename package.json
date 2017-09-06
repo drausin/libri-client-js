@@ -1,5 +1,5 @@
 {
-  "name": "file-metrics",
+  "name": "libri-client-js",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -16,7 +16,9 @@
     "babel-eslint": "^7.2.3",
     "babel-jest": "^20.0.3",
     "babel-preset-env": "^1.6.0",
+    "babel-preset-flow": "^6.23.0",
     "babel-preset-react": "^6.24.1",
+    "flow-bin": "^0.54.0",
     "jest-cli": "^20.0.4",
     "node-webcrypto-ossl": "^1.0.30"
   },
@@ -24,7 +26,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "flow": "flow"
   },
   "jest": {
     "transform": {

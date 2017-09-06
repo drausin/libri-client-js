@@ -1,3 +1,5 @@
+// @flow
+
 const webcrypto = window.crypto.subtle;
 
 /**
@@ -9,7 +11,12 @@ const webcrypto = window.crypto.subtle;
  * @param {Number} pageIndex - index of the page to encrypt
  * @return {Promise.<ArrayBuffer>} - ciphertext
  */
-function encrypt(aesKey, ivSeed, plaintext, pageIndex) {
+function encrypt(
+    aesKey: window.crypto.subtle.CryptoKey,
+    ivSeed: ArrayBuffer,
+    plaintext: ArrayBuffer,
+    pageIndex: number,
+): Promise<ArrayBuffer> {
   return generatePageIV(ivSeed, pageIndex).then((pageIV) => {
     return webcrypto.encrypt({name: 'AES-GCM', iv: pageIV}, aesKey, plaintext);
   });
@@ -23,8 +30,14 @@ function encrypt(aesKey, ivSeed, plaintext, pageIndex) {
  * @param {ArrayBuffer} ciphertext - bytes to decrypt
  * @param {Number} pageIndex - index of the page to encrypt
  * @return {Promise.<ArrayBuffer>} - plaintext
+ * @public
  */
-function decrypt(aesKey, ivSeed, ciphertext, pageIndex) {
+function decrypt(
+    aesKey: window.crypto.subtle.CryptoKey,
+    ivSeed: ArrayBuffer,
+    ciphertext: ArrayBuffer,
+    pageIndex: number,
+): Promise<ArrayBuffer> {
   return generatePageIV(ivSeed, pageIndex).then((pageIV) => {
     return webcrypto.decrypt(
         {name: 'AES-GCM', iv: pageIV},
@@ -40,10 +53,20 @@ function decrypt(aesKey, ivSeed, ciphertext, pageIndex) {
  * @param {CryptoKey} key - key to use for HMAC
  * @param {ArrayBuffer} message - the message to digest
  * @return {Promise.<ArrayBuffer>} - message HMAC
+ * @public
  */
-function hmac(key, message) {
+function hmac(
+    key: window.crypto.subtle.CryptoKey,
+    message: ArrayBuffer,
+): Promise<ArrayBuffer> {
   return webcrypto.sign({name: 'HMAC'}, key, message);
 }
+//
+// class EncryptedMetadata {}
+//
+// function encryptMetadata() {}
+//
+// function decryptMetadata() {}
 
 /**
  * Generate initialization vector for the AES-GCM cipher for a particular page.
@@ -51,10 +74,14 @@ function hmac(key, message) {
  * @param {ArrayBuffer} ivSeed - initialization vector seed
  * @param {Integer} pageIndex - index of page in entry
  * @return {Promise.<ArrayBuffer>} - initialization vector for page
+ * @private
  */
-function generatePageIV(ivSeed, pageIndex) {
-  // big-endian encoding of 32-bit unsigned integer
+function generatePageIV(
+    ivSeed: ArrayBuffer,
+    pageIndex: number,
+): Promise<ArrayBuffer> {
   const pageIndexBytes = new Uint8Array([
+    // big-endian encoding of 32-bit unsigned integer
     (pageIndex >> 24) & 255,
     (pageIndex >> 16) & 255,
     (pageIndex >> 8) & 255,

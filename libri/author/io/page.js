@@ -1,4 +1,7 @@
+// @flow
+
 const enc = require('./enc');
+import type {EEK} from './keys';
 const docs = require('../../librarian/api/documents_pb');
 
 const webcrypto = window.crypto.subtle;
@@ -12,7 +15,12 @@ const webcrypto = window.crypto.subtle;
  * @param {int} pageSize - (max) number of bytes in each page
  * @return {Promise.<docs.Page[]>} array of pages
  */
-function paginate(compressed, eekKeys, authorPub, pageSize) {
+function paginate(
+    compressed: Uint8Array,
+    eekKeys: EEK,
+    authorPub: Uint8Array,
+    pageSize: number
+): Promise<docs.Page[]> {
   let nPages = compressed.length / pageSize + 1;
   if (compressed.length % pageSize === 0) {
     nPages = compressed.length / pageSize;
@@ -51,12 +59,6 @@ function paginate(compressed, eekKeys, authorPub, pageSize) {
       page.setCiphertext(args[0]);
       page.setCiphertextMac(args[1]);
       return page;
-      // return new docs.Page({
-      //   'authorPublicKey': authorPub,
-      //   'index': i,
-      //   'ciphertext': args[0],
-      //   'ciphertextMac': args[1],
-      // });
     });
   }
 
@@ -71,7 +73,7 @@ function paginate(compressed, eekKeys, authorPub, pageSize) {
  * @param {EEK} eekKeys - entry encryption keys
  * @return {Promise.<Uint8Array>} - compressed bytes assembled from pages
  */
-function unpaginate(pages, eekKeys) {
+function unpaginate(pages: docs.Page[], eekKeys: EEK): Promise<Uint8Array> {
   let compressedPages = [];
   for (let i = 0; i < pages.length; i++) {
     // TODO (drausin) validate page
