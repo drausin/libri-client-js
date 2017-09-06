@@ -1,0 +1,37 @@
+{
+  "name": "file-metrics",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "content-type": "^1.0.2",
+    "google-protobuf": "^3.4.0",
+    "pako": "^1.0.5",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-scripts": "0.9.5",
+    "utf-8": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^7.2.3",
+    "babel-jest": "^20.0.3",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
+    "jest-cli": "^20.0.4",
+    "node-webcrypto-ossl": "^1.0.30"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "jest",
+    "eject": "react-scripts eject"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "globals": {
+      "window": true
+    }
+  }
+}
