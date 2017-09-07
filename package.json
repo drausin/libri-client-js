@@ -33,6 +33,8 @@
     "transform": {
       "^.+\\.jsx?$": "babel-jest"
     },
+    "collectCoverage": true,
+    "collectCoverageFrom" : ["**/*.{js,jsx}", "!**/librarian/api/**", "!**/coverage/**"],
     "globals": {
       "window": true
     }
