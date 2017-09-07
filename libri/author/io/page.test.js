@@ -5,7 +5,7 @@ window.crypto = new WebCrypto();
 const keys = require('./keys');
 const page = require('./page');
 
-test('paginate + unpaginate = original', async () => {
+test('paginate -> unpaginate = original', async () => {
   const compressedSizes = [32, 64, 128, 192, 256, 384, 512, 768, 1024, 2048,
     4096, 8192];
   const pageSizes = [128, 256, 512, 1024];

@@ -3,7 +3,6 @@
 const enc = require('./enc');
 import type {EEK} from './keys';
 const docs = require('../../librarian/api/documents_pb');
-
 const webcrypto = window.crypto.subtle;
 
 /**
@@ -14,13 +13,12 @@ const webcrypto = window.crypto.subtle;
  * @param {Uint8Array} authorPub - author public key
  * @param {int} pageSize - (max) number of bytes in each page
  * @return {Promise.<docs.Page[]>} array of pages
+ * @public
  */
-function paginate(
-    compressed: Uint8Array,
+export function paginate(compressed: Uint8Array,
     eekKeys: EEK,
     authorPub: Uint8Array,
-    pageSize: number
-): Promise<docs.Page[]> {
+    pageSize: number): Promise<docs.Page[]> {
   let nPages = compressed.length / pageSize + 1;
   if (compressed.length % pageSize === 0) {
     nPages = compressed.length / pageSize;
@@ -37,8 +35,8 @@ function paginate(
     }
     const compressedPage = compressed.slice(start, end);
 
-    // encrypt & MAC
-    const pageCiphertext = enc.encrypt(
+    // encryptPage & MAC
+    const pageCiphertext = enc.encryptPage(
         eekKeys.aesKey,
         eekKeys.pageIVSeed,
         compressedPage.buffer,
@@ -72,8 +70,10 @@ function paginate(
  * @param {docs.Page[]} pages - pages to decrypt and concatenate together
  * @param {EEK} eekKeys - entry encryption keys
  * @return {Promise.<Uint8Array>} - compressed bytes assembled from pages
+ * @public
  */
-function unpaginate(pages: docs.Page[], eekKeys: EEK): Promise<Uint8Array> {
+export function unpaginate(pages: docs.Page[],
+    eekKeys: EEK): Promise<Uint8Array> {
   let compressedPages = [];
   for (let i = 0; i < pages.length; i++) {
     // TODO (drausin) validate page
@@ -94,7 +94,7 @@ function unpaginate(pages: docs.Page[], eekKeys: EEK): Promise<Uint8Array> {
       }
     });
     compressedPages[i] = verifiedPage.then(() => {
-      return enc.decrypt(
+      return enc.decryptPage(
           eekKeys.aesKey,
           eekKeys.pageIVSeed,
           pages[i].getCiphertext(),
@@ -119,7 +119,3 @@ function unpaginate(pages: docs.Page[], eekKeys: EEK): Promise<Uint8Array> {
   });
 }
 
-export {
-  paginate,
-  unpaginate,
-};

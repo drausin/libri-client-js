@@ -4,7 +4,7 @@ window.crypto = new WebCrypto();
 
 const keys = require('./keys');
 
-test('marshalEEK + unmarshallEEK = original', async () => {
+test('marshalEEK -> unmarshallEEK = original', async () => {
   expect.assertions(1);
   return keys.newEEK().then((original) => {
     return expect(

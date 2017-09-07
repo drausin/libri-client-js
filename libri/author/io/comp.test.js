@@ -6,7 +6,7 @@ test('getCompressionCodec parses ok media types correctly', () => {
   expect(comp.getCompressionCodec('application/pdf')).toBe(comp.defaultCodec);
 });
 
-test('compress + decompress = original with ok codec', () => {
+test('compress -> decompress = original with ok codec', () => {
   const original = new Uint8Array([0, 1, 2, 3, 4, 5]);
   const codecs = [comp.noneCodec, comp.gzipCodec];
   codecs.forEach((codec) => {

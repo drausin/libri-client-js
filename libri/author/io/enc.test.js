@@ -1,12 +1,15 @@
+
 // polyfill webcrypto for tests
 const WebCrypto = require('node-webcrypto-ossl');
 window.crypto = new WebCrypto();
 
+const docs = require('../../librarian/api/documents_pb');
+const keys = require('./keys');
 const enc = require('./enc');
 
 const webcrypto = window.crypto.subtle;
 
-test('encrypt + decrypt = original', async () => {
+test('encryptPage -> decryptPage = original', async () => {
   const aesKey = webcrypto.generateKey(
       {name: 'AES-GCM', length: 256},
       true,
@@ -20,9 +23,9 @@ test('encrypt + decrypt = original', async () => {
   for (let pageIndex = 0; pageIndex < nPages; pageIndex++) {
     await aesKey.then((aesKey2) => {
       return expect(
-          enc.encrypt(aesKey2, ivSeed, original, pageIndex).then(
+          enc.encryptPage(aesKey2, ivSeed, original, pageIndex).then(
               (ciphertext) => {
-                return enc.decrypt(aesKey2, ivSeed, ciphertext, pageIndex);
+                return enc.decryptPage(aesKey2, ivSeed, ciphertext, pageIndex);
               }
           )
       ).resolves.toEqual(original);
@@ -60,4 +63,20 @@ test('hmac gives expected results', () => {
         97, 228,
       ])
   );
+});
+
+test('encryptMetadata -> decryptMetadata = original', () => {
+  const metadata = new docs.Metadata();
+  metadata.getPropertiesMap().set('prop 1', new Uint8Array([0, 1, 2, 4]));
+  metadata.getPropertiesMap().set('prop 2', new Uint8Array([5, 6, 7, 8]));
+
+  const eek = keys.newEEK();
+  expect.assertions(1);
+  return eek.then((eek2) => {
+    return enc.encryptMetadata(metadata, eek2).then((encryptedMetadata) => {
+      return expect(
+          enc.decryptMetadata(encryptedMetadata, eek2)
+      ).resolves.toEqual(metadata);
+    });
+  });
 });
