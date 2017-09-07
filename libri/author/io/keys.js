@@ -38,12 +38,10 @@ export class EEK {
    * @param {ArrayBuffer} metadataIV - 12-byte IV for the Entry metadata block
    * cipher
    */
-  constructor(
-      aesKey: window.crypto.subtle.CryptoKey,
+  constructor(aesKey: window.crypto.subtle.CryptoKey,
       pageIVSeed: ArrayBuffer,
       hmacKey: window.crypto.subtle.CryptoKey,
-      metadataIV: ArrayBuffer,
-  ) {
+      metadataIV: ArrayBuffer) {
     this.aesKey = aesKey;
     this.pageIVSeed = pageIVSeed;
     this.hmacKey = hmacKey;

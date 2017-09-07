@@ -1,5 +1,7 @@
 // @flow
 
+const docs = require('../../librarian/api/documents_pb');
+import type {EEK} from './keys';
 const webcrypto = window.crypto.subtle;
 
 /**
@@ -10,13 +12,12 @@ const webcrypto = window.crypto.subtle;
  * @param {ArrayBuffer} plaintext - bytes to encrypt
  * @param {Number} pageIndex - index of the page to encrypt
  * @return {Promise.<ArrayBuffer>} - ciphertext
+ * @public
  */
-function encrypt(
-    aesKey: window.crypto.subtle.CryptoKey,
+export function encryptPage(aesKey: window.crypto.subtle.CryptoKey,
     ivSeed: ArrayBuffer,
     plaintext: ArrayBuffer,
-    pageIndex: number,
-): Promise<ArrayBuffer> {
+    pageIndex: number): Promise<ArrayBuffer> {
   return generatePageIV(ivSeed, pageIndex).then((pageIV) => {
     return webcrypto.encrypt({name: 'AES-GCM', iv: pageIV}, aesKey, plaintext);
   });
@@ -27,17 +28,15 @@ function encrypt(
  *
  * @param {CryptoKey} aesKey - key for AES-GCM cipher
  * @param {ArrayBuffer} ivSeed - initialization vector seed the page's actual IV
- * @param {ArrayBuffer} ciphertext - bytes to decrypt
+ * @param {ArrayBuffer} ciphertext - bytes to decryptPage
  * @param {Number} pageIndex - index of the page to encrypt
  * @return {Promise.<ArrayBuffer>} - plaintext
  * @public
  */
-function decrypt(
-    aesKey: window.crypto.subtle.CryptoKey,
+export function decryptPage(aesKey: window.crypto.subtle.CryptoKey,
     ivSeed: ArrayBuffer,
     ciphertext: ArrayBuffer,
-    pageIndex: number,
-): Promise<ArrayBuffer> {
+    pageIndex: number): Promise<ArrayBuffer> {
   return generatePageIV(ivSeed, pageIndex).then((pageIV) => {
     return webcrypto.decrypt(
         {name: 'AES-GCM', iv: pageIV},
@@ -55,18 +54,79 @@ function decrypt(
  * @return {Promise.<ArrayBuffer>} - message HMAC
  * @public
  */
-function hmac(
-    key: window.crypto.subtle.CryptoKey,
-    message: ArrayBuffer,
-): Promise<ArrayBuffer> {
+export function hmac(key: window.crypto.subtle.CryptoKey,
+    message: ArrayBuffer): Promise<ArrayBuffer> {
   return webcrypto.sign({name: 'HMAC'}, key, message);
 }
-//
-// class EncryptedMetadata {}
-//
-// function encryptMetadata() {}
-//
-// function decryptMetadata() {}
+
+/**
+ * Container for the encrypted api.Metadata of a document.
+ */
+export class EncryptedMetadata {
+  ciphertext: ArrayBuffer;
+  ciphertextMAC: ArrayBuffer;
+
+  /**
+   * @param {ArrayBuffer} ciphertext - encrypted serialized docs.Metadata
+   * @param {ArrayBuffer} ciphertextMAC - MAC of ciphertext
+   */
+  constructor(ciphertext: ArrayBuffer, ciphertextMAC: ArrayBuffer) {
+    this.ciphertext = ciphertext;
+    this.ciphertextMAC = ciphertextMAC;
+  }
+}
+
+/**
+ * Encrypt a docs.Metadata instance.
+ *
+ * @param {docs.Metadata} metadata - metadata to encrypt
+ * @param {EEK} keys - EEK to use for encryption
+ * @return {Promise.<EncryptedMetadata>} - encrypted metadata
+ */
+export function encryptMetadata(metadata: docs.Metadata,
+    keys: EEK): Promise<EncryptedMetadata> {
+  const plaintext = metadata.serializeBinary();
+  const ciphertextP = webcrypto.encrypt(
+      {name: 'AES-GCM', iv: keys.metadataIV},
+      keys.aesKey,
+      plaintext,
+  );
+  const ciphertextMACP = ciphertextP.then((ciphertext) => {
+    return hmac(keys.hmacKey, ciphertext);
+  });
+  return Promise.all([ciphertextP, ciphertextMACP]).then((args) => {
+    return new EncryptedMetadata(args[0], args[1]);
+  });
+}
+
+/**
+ * Decrypt an EncryptedMetadata instance.
+ *
+ * @param {EncryptedMetadata} encMetadata - encrypted metadata to decryptPage
+ * @param {EEK} keys - EEK to use for decryption
+ * @return {Promise.<docs.Metadata>}
+ */
+export function decryptMetadata(encMetadata: EncryptedMetadata,
+    keys: EEK): Promise<docs.Metadata> {
+  return webcrypto.verify(
+      {name: 'HMAC'},
+      keys.hmacKey,
+      encMetadata.ciphertextMAC,
+      encMetadata.ciphertext,
+  ).then((isValid) => {
+    if (!isValid) {
+      throw new Error('unexpected metadata MAC');
+    }
+  }).then(() => {
+    return webcrypto.decrypt(
+        {name: 'AES-GCM', iv: keys.metadataIV},
+        keys.aesKey,
+        encMetadata.ciphertext,
+    );
+  }).then((plaintext) => {
+    return docs.Metadata.deserializeBinary(plaintext);
+  });
+}
 
 /**
  * Generate initialization vector for the AES-GCM cipher for a particular page.
@@ -76,10 +136,8 @@ function hmac(
  * @return {Promise.<ArrayBuffer>} - initialization vector for page
  * @private
  */
-function generatePageIV(
-    ivSeed: ArrayBuffer,
-    pageIndex: number,
-): Promise<ArrayBuffer> {
+function generatePageIV(ivSeed: ArrayBuffer,
+    pageIndex: number): Promise<ArrayBuffer> {
   const pageIndexBytes = new Uint8Array([
     // big-endian encoding of 32-bit unsigned integer
     (pageIndex >> 24) & 255,
@@ -97,9 +155,3 @@ function generatePageIV(
     return hmac(ivSeedKey, pageIndexBytes);
   });
 }
-
-export {
-  encrypt,
-  decrypt,
-  hmac,
-};
