@@ -9,6 +9,7 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-scripts": "0.9.5",
+    "seedrandom": "^2.4.3",
     "utf-8": "^1.0.0"
   },
   "devDependencies": {
@@ -34,7 +35,11 @@
       "^.+\\.jsx?$": "babel-jest"
     },
     "collectCoverage": true,
-    "collectCoverageFrom" : ["**/*.{js,jsx}", "!**/librarian/api/**", "!**/coverage/**"],
+    "collectCoverageFrom": [
+      "**/*.{js,jsx}",
+      "!**/librarian/api/*_pb.js",
+      "!**/coverage/**"
+    ],
     "globals": {
       "window": true
     }

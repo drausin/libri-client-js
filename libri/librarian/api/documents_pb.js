@@ -9,10 +9,12 @@ var jspb = require('google-protobuf');
 var goog = jspb;
 var global = Function('return this')();
 
+goog.exportSymbol('proto.api.CompressionCodec', null, global);
 goog.exportSymbol('proto.api.Document', null, global);
 goog.exportSymbol('proto.api.Entry', null, global);
+goog.exportSymbol('proto.api.EntryMetadata', null, global);
+goog.exportSymbol('proto.api.EntrySchema', null, global);
 goog.exportSymbol('proto.api.Envelope', null, global);
-goog.exportSymbol('proto.api.Metadata', null, global);
 goog.exportSymbol('proto.api.Page', null, global);
 goog.exportSymbol('proto.api.PageKeys', null, global);
 
@@ -1103,12 +1105,12 @@ proto.api.Entry.prototype.setMetadataCiphertextMac = function(value) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.api.Metadata = function(opt_data) {
+proto.api.EntryMetadata = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.api.Metadata, jspb.Message);
+goog.inherits(proto.api.EntryMetadata, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.api.Metadata.displayName = 'proto.api.Metadata';
+  proto.api.EntryMetadata.displayName = 'proto.api.EntryMetadata';
 }
 
 
@@ -1123,8 +1125,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.api.Metadata.prototype.toObject = function(opt_includeInstance) {
-  return proto.api.Metadata.toObject(opt_includeInstance, this);
+proto.api.EntryMetadata.prototype.toObject = function(opt_includeInstance) {
+  return proto.api.EntryMetadata.toObject(opt_includeInstance, this);
 };
 
 
@@ -1133,12 +1135,20 @@ proto.api.Metadata.prototype.toObject = function(opt_includeInstance) {
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.api.Metadata} msg The msg instance to transform.
+ * @param {!proto.api.EntryMetadata} msg The msg instance to transform.
  * @return {!Object}
  */
-proto.api.Metadata.toObject = function(includeInstance, msg) {
+proto.api.EntryMetadata.toObject = function(includeInstance, msg) {
   var f, obj = {
-    propertiesMap: (f = msg.getPropertiesMap()) ? f.toArray() : []
+    mediaType: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    compressionCodec: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    ciphertextSize: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    ciphertextMac: msg.getCiphertextMac_asB64(),
+    uncompressedSize: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    uncompressedMac: msg.getUncompressedMac_asB64(),
+    propertiesMap: (f = msg.getPropertiesMap()) ? f.toArray() : [],
+    filepath: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    schema: (f = msg.getSchema()) && proto.api.EntrySchema.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1152,23 +1162,23 @@ proto.api.Metadata.toObject = function(includeInstance, msg) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.api.Metadata}
+ * @return {!proto.api.EntryMetadata}
  */
-proto.api.Metadata.deserializeBinary = function(bytes) {
+proto.api.EntryMetadata.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.api.Metadata;
-  return proto.api.Metadata.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.api.EntryMetadata;
+  return proto.api.EntryMetadata.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.api.Metadata} msg The message object to deserialize into.
+ * @param {!proto.api.EntryMetadata} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.api.Metadata}
+ * @return {!proto.api.EntryMetadata}
  */
-proto.api.Metadata.deserializeBinaryFromReader = function(msg, reader) {
+proto.api.EntryMetadata.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -1176,10 +1186,43 @@ proto.api.Metadata.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setMediaType(value);
+      break;
+    case 2:
+      var value = /** @type {!proto.api.CompressionCodec} */ (reader.readEnum());
+      msg.setCompressionCodec(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setCiphertextSize(value);
+      break;
+    case 4:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setCiphertextMac(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setUncompressedSize(value);
+      break;
+    case 6:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setUncompressedMac(value);
+      break;
+    case 7:
       var value = msg.getPropertiesMap();
       reader.readMessage(value, function(message, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readBytes);
          });
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFilepath(value);
+      break;
+    case 9:
+      var value = new proto.api.EntrySchema;
+      reader.readMessage(value,proto.api.EntrySchema.deserializeBinaryFromReader);
+      msg.setSchema(value);
       break;
     default:
       reader.skipField();
@@ -1193,10 +1236,10 @@ proto.api.Metadata.deserializeBinaryFromReader = function(msg, reader) {
 /**
  * Class method variant: serializes the given message to binary data
  * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.api.Metadata} message
+ * @param {!proto.api.EntryMetadata} message
  * @param {!jspb.BinaryWriter} writer
  */
-proto.api.Metadata.serializeBinaryToWriter = function(message, writer) {
+proto.api.EntryMetadata.serializeBinaryToWriter = function(message, writer) {
   message.serializeBinaryToWriter(writer);
 };
 
@@ -1205,7 +1248,7 @@ proto.api.Metadata.serializeBinaryToWriter = function(message, writer) {
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.api.Metadata.prototype.serializeBinary = function() {
+proto.api.EntryMetadata.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
   this.serializeBinaryToWriter(writer);
   return writer.getResultBuffer();
@@ -1217,30 +1260,528 @@ proto.api.Metadata.prototype.serializeBinary = function() {
  * writing to the given BinaryWriter.
  * @param {!jspb.BinaryWriter} writer
  */
-proto.api.Metadata.prototype.serializeBinaryToWriter = function (writer) {
+proto.api.EntryMetadata.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
+  f = this.getMediaType();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = this.getCompressionCodec();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      2,
+      f
+    );
+  }
+  f = this.getCiphertextSize();
+  if (f !== 0) {
+    writer.writeUint64(
+      3,
+      f
+    );
+  }
+  f = this.getCiphertextMac_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      4,
+      f
+    );
+  }
+  f = this.getUncompressedSize();
+  if (f !== 0) {
+    writer.writeUint64(
+      5,
+      f
+    );
+  }
+  f = this.getUncompressedMac_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      6,
+      f
+    );
+  }
   f = this.getPropertiesMap(true);
   if (f && f.getLength() > 0) {
-    f.serializeBinary(1, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeBytes);
+    f.serializeBinary(7, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeBytes);
+  }
+  f = this.getFilepath();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
+      f
+    );
+  }
+  f = this.getSchema();
+  if (f != null) {
+    writer.writeMessage(
+      9,
+      f,
+      proto.api.EntrySchema.serializeBinaryToWriter
+    );
   }
 };
 
 
 /**
- * map<string, bytes> properties = 1;
+ * optional string media_type = 1;
+ * @return {string}
+ */
+proto.api.EntryMetadata.prototype.getMediaType = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.api.EntryMetadata.prototype.setMediaType = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional CompressionCodec compression_codec = 2;
+ * @return {!proto.api.CompressionCodec}
+ */
+proto.api.EntryMetadata.prototype.getCompressionCodec = function() {
+  return /** @type {!proto.api.CompressionCodec} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/** @param {!proto.api.CompressionCodec} value */
+proto.api.EntryMetadata.prototype.setCompressionCodec = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * optional uint64 ciphertext_size = 3;
+ * @return {number}
+ */
+proto.api.EntryMetadata.prototype.getCiphertextSize = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/** @param {number} value */
+proto.api.EntryMetadata.prototype.setCiphertextSize = function(value) {
+  jspb.Message.setField(this, 3, value);
+};
+
+
+/**
+ * optional bytes ciphertext_mac = 4;
+ * @return {!(string|Uint8Array)}
+ */
+proto.api.EntryMetadata.prototype.getCiphertextMac = function() {
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * optional bytes ciphertext_mac = 4;
+ * This is a type-conversion wrapper around `getCiphertextMac()`
+ * @return {string}
+ */
+proto.api.EntryMetadata.prototype.getCiphertextMac_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getCiphertextMac()));
+};
+
+
+/**
+ * optional bytes ciphertext_mac = 4;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getCiphertextMac()`
+ * @return {!Uint8Array}
+ */
+proto.api.EntryMetadata.prototype.getCiphertextMac_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getCiphertextMac()));
+};
+
+
+/** @param {!(string|Uint8Array)} value */
+proto.api.EntryMetadata.prototype.setCiphertextMac = function(value) {
+  jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * optional uint64 uncompressed_size = 5;
+ * @return {number}
+ */
+proto.api.EntryMetadata.prototype.getUncompressedSize = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+
+/** @param {number} value */
+proto.api.EntryMetadata.prototype.setUncompressedSize = function(value) {
+  jspb.Message.setField(this, 5, value);
+};
+
+
+/**
+ * optional bytes uncompressed_mac = 6;
+ * @return {!(string|Uint8Array)}
+ */
+proto.api.EntryMetadata.prototype.getUncompressedMac = function() {
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * optional bytes uncompressed_mac = 6;
+ * This is a type-conversion wrapper around `getUncompressedMac()`
+ * @return {string}
+ */
+proto.api.EntryMetadata.prototype.getUncompressedMac_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getUncompressedMac()));
+};
+
+
+/**
+ * optional bytes uncompressed_mac = 6;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getUncompressedMac()`
+ * @return {!Uint8Array}
+ */
+proto.api.EntryMetadata.prototype.getUncompressedMac_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getUncompressedMac()));
+};
+
+
+/** @param {!(string|Uint8Array)} value */
+proto.api.EntryMetadata.prototype.setUncompressedMac = function(value) {
+  jspb.Message.setField(this, 6, value);
+};
+
+
+/**
+ * map<string, bytes> properties = 7;
  * @param {boolean=} opt_noLazyCreate Do not create the map if
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,!(string|Uint8Array)>}
  */
-proto.api.Metadata.prototype.getPropertiesMap = function(opt_noLazyCreate) {
+proto.api.EntryMetadata.prototype.getPropertiesMap = function(opt_noLazyCreate) {
   return /** @type {!jspb.Map<string,!(string|Uint8Array)>} */ (
-      jspb.Message.getMapField(this, 1, opt_noLazyCreate,
+      jspb.Message.getMapField(this, 7, opt_noLazyCreate,
       null));
 };
 
 
-proto.api.Metadata.prototype.clearPropertiesMap = function() {
+proto.api.EntryMetadata.prototype.clearPropertiesMap = function() {
   this.getPropertiesMap().clear();
+};
+
+
+/**
+ * optional string filepath = 8;
+ * @return {string}
+ */
+proto.api.EntryMetadata.prototype.getFilepath = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/** @param {string} value */
+proto.api.EntryMetadata.prototype.setFilepath = function(value) {
+  jspb.Message.setField(this, 8, value);
+};
+
+
+/**
+ * optional EntrySchema schema = 9;
+ * @return {?proto.api.EntrySchema}
+ */
+proto.api.EntryMetadata.prototype.getSchema = function() {
+  return /** @type{?proto.api.EntrySchema} */ (
+    jspb.Message.getWrapperField(this, proto.api.EntrySchema, 9));
+};
+
+
+/** @param {?proto.api.EntrySchema|undefined} value */
+proto.api.EntryMetadata.prototype.setSchema = function(value) {
+  jspb.Message.setWrapperField(this, 9, value);
+};
+
+
+proto.api.EntryMetadata.prototype.clearSchema = function() {
+  this.setSchema(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.api.EntryMetadata.prototype.hasSchema = function() {
+  return jspb.Message.getField(this, 9) != null;
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.api.EntrySchema = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.api.EntrySchema, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.api.EntrySchema.displayName = 'proto.api.EntrySchema';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.api.EntrySchema.prototype.toObject = function(opt_includeInstance) {
+  return proto.api.EntrySchema.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.api.EntrySchema} msg The msg instance to transform.
+ * @return {!Object}
+ */
+proto.api.EntrySchema.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    group: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    project: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    path: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    name: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    version: jspb.Message.getFieldWithDefault(msg, 5, "")
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.api.EntrySchema}
+ */
+proto.api.EntrySchema.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.api.EntrySchema;
+  return proto.api.EntrySchema.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.api.EntrySchema} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.api.EntrySchema}
+ */
+proto.api.EntrySchema.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setGroup(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setProject(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPath(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setVersion(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.api.EntrySchema} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.api.EntrySchema.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.api.EntrySchema.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.api.EntrySchema.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+  f = this.getGroup();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = this.getProject();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = this.getPath();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = this.getName();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = this.getVersion();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional string group = 1;
+ * @return {string}
+ */
+proto.api.EntrySchema.prototype.getGroup = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.api.EntrySchema.prototype.setGroup = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional string project = 2;
+ * @return {string}
+ */
+proto.api.EntrySchema.prototype.getProject = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/** @param {string} value */
+proto.api.EntrySchema.prototype.setProject = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * optional string path = 3;
+ * @return {string}
+ */
+proto.api.EntrySchema.prototype.getPath = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/** @param {string} value */
+proto.api.EntrySchema.prototype.setPath = function(value) {
+  jspb.Message.setField(this, 3, value);
+};
+
+
+/**
+ * optional string name = 4;
+ * @return {string}
+ */
+proto.api.EntrySchema.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/** @param {string} value */
+proto.api.EntrySchema.prototype.setName = function(value) {
+  jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * optional string version = 5;
+ * @return {string}
+ */
+proto.api.EntrySchema.prototype.getVersion = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/** @param {string} value */
+proto.api.EntrySchema.prototype.setVersion = function(value) {
+  jspb.Message.setField(this, 5, value);
 };
 
 
@@ -1747,5 +2288,13 @@ proto.api.Page.prototype.setCiphertextMac = function(value) {
   jspb.Message.setField(this, 4, value);
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.api.CompressionCodec = {
+  NONE: 0,
+  GZIP: 1
+};
 
 goog.object.extend(exports, proto.api);

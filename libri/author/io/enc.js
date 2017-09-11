@@ -1,7 +1,7 @@
 // @flow
 
 const docs = require('../../librarian/api/documents_pb');
-import type {EEK} from './keys';
+import * as keys from './keys';
 const webcrypto = window.crypto.subtle;
 
 /**
@@ -77,24 +77,24 @@ export class EncryptedMetadata {
 }
 
 /**
- * Encrypt a docs.Metadata instance.
+ * Encrypt a docs.EntryMetadata instance.
  *
- * @param {docs.Metadata} metadata - metadata to encrypt
- * @param {EEK} keys - EEK to use for encryption
+ * @param {docs.EntryMetadata} metadata - metadata to encrypt
+ * @param {keys.EEK} keys - EEK to use for encryption
  * @return {Promise.<EncryptedMetadata>} - encrypted metadata
  */
-export function encryptMetadata(metadata: docs.Metadata,
-    keys: EEK): Promise<EncryptedMetadata> {
+export function encryptMetadata(metadata: docs.EntryMetadata,
+    keys: keys.EEK): Promise<EncryptedMetadata> {
   const plaintext = metadata.serializeBinary();
   const ciphertextP = webcrypto.encrypt(
       {name: 'AES-GCM', iv: keys.metadataIV},
       keys.aesKey,
       plaintext,
   );
-  const ciphertextMACP = ciphertextP.then((ciphertext) => {
+  const ciphertextMacP = ciphertextP.then((ciphertext) => {
     return hmac(keys.hmacKey, ciphertext);
   });
-  return Promise.all([ciphertextP, ciphertextMACP]).then((args) => {
+  return Promise.all([ciphertextP, ciphertextMacP]).then((args) => {
     return new EncryptedMetadata(args[0], args[1]);
   });
 }
@@ -103,11 +103,11 @@ export function encryptMetadata(metadata: docs.Metadata,
  * Decrypt an EncryptedMetadata instance.
  *
  * @param {EncryptedMetadata} encMetadata - encrypted metadata to decryptPage
- * @param {EEK} keys - EEK to use for decryption
- * @return {Promise.<docs.Metadata>}
+ * @param {keys.EEK} keys - EEK to use for decryption
+ * @return {Promise.<docs.EntryMetadata>}
  */
 export function decryptMetadata(encMetadata: EncryptedMetadata,
-    keys: EEK): Promise<docs.Metadata> {
+    keys: keys.EEK): Promise<docs.EntryMetadata> {
   return webcrypto.verify(
       {name: 'HMAC'},
       keys.hmacKey,
@@ -124,7 +124,7 @@ export function decryptMetadata(encMetadata: EncryptedMetadata,
         encMetadata.ciphertext,
     );
   }).then((plaintext) => {
-    return docs.Metadata.deserializeBinary(plaintext);
+    return docs.EntryMetadata.deserializeBinary(plaintext);
   });
 }
 

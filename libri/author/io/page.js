@@ -5,6 +5,9 @@ import type {EEK} from './keys';
 const docs = require('../../librarian/api/documents_pb');
 const webcrypto = window.crypto.subtle;
 
+// defaultSize is the default maximum number of bytes in a page.
+export const defaultSize = 2 * 1024 * 1024;  // 2 MB
+
 /**
  * Split & encrypt compressed bytes into pages.
  *
@@ -19,7 +22,7 @@ export function paginate(compressed: Uint8Array,
     eekKeys: EEK,
     authorPub: Uint8Array,
     pageSize: number): Promise<docs.Page[]> {
-  let nPages = compressed.length / pageSize + 1;
+  let nPages = Math.floor(compressed.length / pageSize) + 1;
   if (compressed.length % pageSize === 0) {
     nPages = compressed.length / pageSize;
   }
@@ -54,8 +57,8 @@ export function paginate(compressed: Uint8Array,
       let page = new docs.Page();
       page.setAuthorPublicKey(authorPub);
       page.setIndex(i);
-      page.setCiphertext(args[0]);
-      page.setCiphertextMac(args[1]);
+      page.setCiphertext(new Uint8Array(args[0]));
+      page.setCiphertextMac(new Uint8Array(args[1]));
       return page;
     });
   }
