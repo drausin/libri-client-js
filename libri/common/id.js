@@ -1,7 +1,6 @@
 // @flow
 
-const webcrypto = window.crypto.subtle;
-const length = 32;
+export const length = 32;
 
 /**
  * ID is a 32-byte identifier.
@@ -28,8 +27,23 @@ export class ID {
     return hex(this.bytes);
   }
 
+  /**
+   * Compare the ID to another ID.
+   *
+   * @param {ID} other - the other ID to compare this ID to
+   * @return {number} - 0 if they are equal, -1 if this ID is less than the
+   * other, 1 if it is more
+   */
   compare(other: ID): number {
-    return 0;  // TODO (drausin) populate for real
+    for (let i = 0; i < this.bytes.length; i++) {
+      if (this.bytes[i] < other.bytes[i]) {
+        return -1;
+      }
+      if (this.bytes[i] > other.bytes[i]) {
+        return 1;
+      }
+    }
+    return 0;
   }
 }
 
@@ -40,12 +54,12 @@ export class ID {
  */
 export function newRandom(): ID {
   const bytes = new Uint8Array(length);
-  webcrypto.getRandomValues(bytes);
+  window.crypto.getRandomValues(bytes);
   return new ID(bytes);
 }
 
 /**
- * Returns the 64-character hex string of the first 32-bytes of the value.
+ * Returns the hex string of the value.
  * @param {Uint8Array} value - value to get hex string for
  * @return {string}
  * @public

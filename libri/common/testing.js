@@ -2,6 +2,9 @@
 
 import 'seedrandom';
 
+// $FlowFixMe
+const seedrandom = Math.seedrandom;
+
 /**
  * Generate a random sequence of compressible bytes of a given length.
  * @param {seedrandom} rng - random number generator

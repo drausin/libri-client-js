@@ -1,7 +1,7 @@
 // @flow
 
-const docs = require('../../librarian/api/documents_pb');
-import * as keys from './keys';
+import {EntryMetadata} from '../../librarian/api/documents_pb';
+import {EEK} from './keys';
 const webcrypto = window.crypto.subtle;
 
 /**
@@ -79,12 +79,12 @@ export class EncryptedMetadata {
 /**
  * Encrypt a docs.EntryMetadata instance.
  *
- * @param {docs.EntryMetadata} metadata - metadata to encrypt
- * @param {keys.EEK} keys - EEK to use for encryption
+ * @param {EntryMetadata} metadata - metadata to encrypt
+ * @param {EEK} keys - EEK to use for encryption
  * @return {Promise.<EncryptedMetadata>} - encrypted metadata
  */
-export function encryptMetadata(metadata: docs.EntryMetadata,
-    keys: keys.EEK): Promise<EncryptedMetadata> {
+export function encryptMetadata(metadata: EntryMetadata,
+    keys: EEK): Promise<EncryptedMetadata> {
   const plaintext = metadata.serializeBinary();
   const ciphertextP = webcrypto.encrypt(
       {name: 'AES-GCM', iv: keys.metadataIV},
@@ -103,11 +103,11 @@ export function encryptMetadata(metadata: docs.EntryMetadata,
  * Decrypt an EncryptedMetadata instance.
  *
  * @param {EncryptedMetadata} encMetadata - encrypted metadata to decryptPage
- * @param {keys.EEK} keys - EEK to use for decryption
- * @return {Promise.<docs.EntryMetadata>}
+ * @param {EEK} keys - EEK to use for decryption
+ * @return {Promise.<EntryMetadata>}
  */
 export function decryptMetadata(encMetadata: EncryptedMetadata,
-    keys: keys.EEK): Promise<docs.EntryMetadata> {
+    keys: EEK): Promise<EntryMetadata> {
   return webcrypto.verify(
       {name: 'HMAC'},
       keys.hmacKey,
@@ -124,7 +124,7 @@ export function decryptMetadata(encMetadata: EncryptedMetadata,
         encMetadata.ciphertext,
     );
   }).then((plaintext) => {
-    return docs.EntryMetadata.deserializeBinary(plaintext);
+    return EntryMetadata.deserializeBinary(plaintext);
   });
 }
 
