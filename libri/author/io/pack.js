@@ -1,29 +1,39 @@
 // @flow
 
-import * as docs from '../../librarian/api/documents_pb';
-import * as docslib from '../../librarian/api/documents';
+import {
+  Document,
+  Entry,
+  EntryMetadata,
+  Page,
+  PageKeys,
+} from '../../librarian/api/documents_pb';
+import {
+  DocumentKey,
+  getKey,
+  getPageDocumentKey,
+} from '../../librarian/api/documents';
 import * as id from '../../common/id';
 import * as comp from './comp';
 import * as enc from './enc';
 import * as page from './page';
-import * as keys from './keys';
+import {EEK} from './keys';
 
 /**
  * A packed entry, possible pages, and its plaintext metadata.
  */
 class PackedEntry {
-  entryDocKey: docslib.DocumentKey;
-  pageDocKeys: docslib.DocumentKey[];
-  metadata: docs.EntryMetadata;
+  entryDocKey: DocumentKey;
+  pageDocKeys: DocumentKey[];
+  metadata: EntryMetadata;
 
   /**
-   * @param {docslib.DocumentKey} entryDocKey
-   * @param {docslib.DocumentKey[]} pageDocKeys
+   * @param {DocumentKey} entryDocKey
+   * @param {DocumentKey[]} pageDocKeys
    * @param {docs.EntryMetadata} metadata
    */
-  constructor(entryDocKey: docslib.DocumentKey,
-      pageDocKeys: docslib.DocumentKey[],
-      metadata: docs.EntryMetadata) {
+  constructor(entryDocKey: DocumentKey,
+      pageDocKeys: DocumentKey[],
+      metadata: EntryMetadata) {
     this.entryDocKey = entryDocKey;
     this.pageDocKeys = pageDocKeys;
     this.metadata = metadata;
@@ -35,14 +45,14 @@ class PackedEntry {
  *
  * @param {Uint8Array} content - content to pack into a entryDocKey
  * @param {string} mediaType - content media type
- * @param {keys.EEK} keys - EEK for entryDoc
+ * @param {EEK} keys - EEK for entryDoc
  * @param {Uint8Array} authorPub - author public key
  * @param {number} pageSize - max bytes per page
  * @return {Promise.<PackedEntry>} - entryDoc & page documents +
  * metadata
  * @public
  */
-export function pack(content: Uint8Array, mediaType: string, keys: keys.EEK,
+export function pack(content: Uint8Array, mediaType: string, keys: EEK,
     authorPub: Uint8Array,
     pageSize: number = page.defaultSize): Promise<PackedEntry> {
   // get pages
@@ -64,7 +74,7 @@ export function pack(content: Uint8Array, mediaType: string, keys: keys.EEK,
   const metadataP = Promise.all([
     ciphertextSizeP, ciphertextMacP, uncompressedMacP,
   ]).then((args) => {
-    let metadata = new docs.EntryMetadata();
+    let metadata = new EntryMetadata();
     metadata.setMediaType(mediaType);
     metadata.setCompressionCodec(codec);
     metadata.setCiphertextSize(args[0]);
@@ -81,7 +91,7 @@ export function pack(content: Uint8Array, mediaType: string, keys: keys.EEK,
   const pageDocKeysP = pagesP.then((pages) => {
     let pageDocKeyPs = [];
     for (let i = 0; i < pages.length; i++) {
-      pageDocKeyPs[i] = docslib.getPageDocumentKey(pages[i]);
+      pageDocKeyPs[i] = getPageDocumentKey(pages[i]);
     }
     return Promise.all(pageDocKeyPs).then((pageDocKeys) => {
       return pageDocKeys;
@@ -101,13 +111,13 @@ export function pack(content: Uint8Array, mediaType: string, keys: keys.EEK,
  */
 class UnpackedContent {
   content: Uint8Array;
-  metadata: docs.EntryMetadata;
+  metadata: EntryMetadata;
 
   /**
    * @param {Uint8Array} content
    * @param {docs.EntryMetadata} metadata
    */
-  constructor(content: Uint8Array, metadata: docs.EntryMetadata) {
+  constructor(content: Uint8Array, metadata: EntryMetadata) {
     this.content = content;
     this.metadata = metadata;
   }
@@ -117,15 +127,14 @@ class UnpackedContent {
  * Unpack an entry and pages into a content array.
  *
  * @param {docs.Document} entryDoc - entry document to unpack
- * @param {docslib.DocumentKey[]} pageDocKeys - list of ordered pages with
+ * @param {DocumentKey[]} pageDocKeys - list of ordered pages with
  * keys, empty when entry is single-page
- * @param {keys.EEK} keys - EEK for entryDoc
+ * @param {EEK} keys - EEK for entryDoc
  * @return {Promise.<UnpackedContent>}
  * @public
  */
-export function unpack(entryDoc: docs.Document,
-    pageDocKeys: docslib.DocumentKey[],
-    keys: keys.EEK): Promise<UnpackedContent> {
+export function unpack(entryDoc: Document, pageDocKeys: DocumentKey[],
+    keys: EEK): Promise<UnpackedContent> {
   const encMetadata = new enc.EncryptedMetadata(
       entryDoc.getEntry().getMetadataCiphertext(),
       entryDoc.getEntry().getMetadataCiphertextMac(),
@@ -166,15 +175,15 @@ export function unpack(entryDoc: docs.Document,
 /**
  * Generate a new entryDocKey entryDocKey.
  *
- * @param {docslib.DocumentKey[]} pageDocKeys - page(s) to extract keys from
- * @param {enc.EncryptedMetadata} encMetadata - encrypted plaintext metadata
+ * @param {DocumentKey[]} pageDocKeys - page(s) to extract keys from
+ * @param {EncryptedMetadata} encMetadata - encrypted plaintext metadata
  * @param {Uint8Array} authorPub - author public key
- * @return {Promise.<docslib.DocumentKey>} - generated entry doc and key
+ * @return {Promise.<DocumentKey>} - generated entry doc and key
  */
-function newEntryDocKey(pageDocKeys: docslib.DocumentKey[],
+function newEntryDocKey(pageDocKeys: DocumentKey[],
     encMetadata: enc.EncryptedMetadata,
-    authorPub: Uint8Array): Promise<docslib.DocumentKey> {
-  let entry = new docs.Entry();
+    authorPub: Uint8Array): Promise<DocumentKey> {
+  let entry = new Entry();
   entry.setAuthorPublicKey(authorPub);
   entry.setCreatedTime(Math.floor(Date.now() / 1000));  // ms -> sec
   entry.setMetadataCiphertext(new Uint8Array(encMetadata.ciphertext));
@@ -188,16 +197,16 @@ function newEntryDocKey(pageDocKeys: docslib.DocumentKey[],
     for (let i = 0; i < pageDocKeys.length; i++) {
       pageKeys[i] = pageDocKeys[i].key.bytes;
     }
-    const pageKeysObj = new docs.PageKeys();
+    const pageKeysObj = new PageKeys();
     pageKeysObj.setKeysList(pageKeys);
     entry.setPageKeys(pageKeysObj);
   }
 
   // return document and key
-  let doc = new docs.Document();
+  let doc = new Document();
   doc.setEntry(entry);
-  return docslib.getKey(doc).then((key) => {
-    return new docslib.DocumentKey(doc, key);
+  return getKey(doc).then((key) => {
+    return new DocumentKey(doc, key);
   });
 }
 
@@ -207,7 +216,7 @@ function newEntryDocKey(pageDocKeys: docslib.DocumentKey[],
  * @param {doc.Page[]} pages - pageDocKeys whose ciphertexts to concatenate
  * @return {Uint8Array} - concatenated ciphertext
  */
-function getFullCiphertext(pages: docs.Page[]): Uint8Array {
+function getFullCiphertext(pages: Page[]): Uint8Array {
   let ciphertextLength = 0;
   for (let i = 0; i < pages.length; i++) {
     ciphertextLength += pages[i].getCiphertext().byteLength;
