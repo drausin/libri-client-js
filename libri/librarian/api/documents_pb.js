@@ -240,7 +240,7 @@ proto.api.Document.prototype.hasEnvelope = function() {
 
 
 /**
- * optional Entry entry = 2;
+ * optional Entry entryDocKey = 2;
  * @return {?proto.api.Entry}
  */
 proto.api.Document.prototype.getEntry = function() {

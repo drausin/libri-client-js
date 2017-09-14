@@ -50,7 +50,7 @@ export class EEK {
 }
 
 /**
- * Generated a new, random entry encryption key (EEK) using window.crypto's
+ * Generated a new, random entryDocKey encryption key (EEK) using window.crypto's
  * random value generator.
  *
  * @return {Promise.<EEK>}

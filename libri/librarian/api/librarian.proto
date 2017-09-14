@@ -90,7 +90,7 @@ message FindResponse {
 message VerifyRequest {
     RequestMetadata metadata = 1;
 
-    // 32-byte key of document to verify
+    // 32-byte key of entryDocKeys to verify
     bytes key = 2;
 
     // 32-byte key to use in HMAC-256 verification
@@ -103,7 +103,7 @@ message VerifyRequest {
 message VerifyResponse {
     ResponseMetadata metadata = 1;
 
-    // nil if the peer does not have the document, otherwise the HMAC-256 of the document's
+    // nil if the peer does not have the entryDocKey, otherwise the HMAC-256 of the entryDocKey's
     // serialized bytes given the MAC key in the request
     bytes mac = 2;
 
@@ -142,7 +142,7 @@ message StoreResponse {
 message GetRequest {
     RequestMetadata metadata = 1;
 
-    // 32-byte key of document to get
+    // 32-byte key of entryDocKeys to get
     bytes key = 2;
 }
 

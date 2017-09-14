@@ -1,3 +1,4 @@
+// @flow
 
 const webcrypto = window.crypto.subtle;
 const length = 32;
@@ -25,6 +26,10 @@ export class ID {
    */
   string(): string {
     return hex(this.bytes);
+  }
+
+  compare(other: ID): number {
+    return 0;  // TODO (drausin) populate for real
   }
 }
 

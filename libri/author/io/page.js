@@ -9,13 +9,13 @@ const webcrypto = window.crypto.subtle;
 export const defaultSize = 2 * 1024 * 1024;  // 2 MB
 
 /**
- * Split & encrypt compressed bytes into pages.
+ * Split & encrypt compressed bytes into pageDocKeys.
  *
- * @param {Uint8Array} compressed - compressed bytes to split into pages
- * @param {EEK} eekKeys - entry encryption keys
+ * @param {Uint8Array} compressed - compressed bytes to split into pageDocKeys
+ * @param {EEK} eekKeys - entryDocKey encryption keys
  * @param {Uint8Array} authorPub - author public key
  * @param {int} pageSize - (max) number of bytes in each page
- * @return {Promise.<docs.Page[]>} array of pages
+ * @return {Promise.<docs.Page[]>} array of pageDocKeys
  * @public
  */
 export function paginate(compressed: Uint8Array,
@@ -50,7 +50,7 @@ export function paginate(compressed: Uint8Array,
       return enc.hmac(eekKeys.hmacKey, value);
     });
 
-    // create page and append to pages list
+    // create page and append to pageDocKeys list
     pagePromises[i] = Promise.all(
         [pageCiphertext, pageCiphertextMAC],
     ).then((args) => {
@@ -70,9 +70,9 @@ export function paginate(compressed: Uint8Array,
 
 /**
  *
- * @param {docs.Page[]} pages - pages to decrypt and concatenate together
- * @param {EEK} eekKeys - entry encryption keys
- * @return {Promise.<Uint8Array>} - compressed bytes assembled from pages
+ * @param {docs.Page[]} pages - pageDocKeys to decrypt and concatenate together
+ * @param {EEK} eekKeys - entryDocKey encryption keys
+ * @return {Promise.<Uint8Array>} - compressed bytes assembled from pageDocKeys
  * @public
  */
 export function unpaginate(pages: docs.Page[],
@@ -106,7 +106,7 @@ export function unpaginate(pages: docs.Page[],
     });
   }
 
-  // concatenate all pages together
+  // concatenate all pageDocKeys together
   return Promise.all(compressedPages).then((compressedPages2) => {
     let compressedLength = 0;
     for (let i = 0; i < compressedPages2.length; i++) {

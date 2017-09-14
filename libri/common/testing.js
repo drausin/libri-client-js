@@ -1,13 +1,15 @@
+// @flow
+
 import 'seedrandom';
 
 /**
  * Generate a random sequence of compressible bytes of a given length.
- * @param {Math.seedrandom} rng - random number generator
+ * @param {seedrandom} rng - random number generator
  * @param {integer} length - length of byte array to generate
  * @return {Uint8Array} - random sequence of compressible bytes
  * @public
  */
-export function newCompressibleBytes(rng: Math.seedrandom,
+export function newCompressibleBytes(rng: seedrandom,
     length: number): Uint8Array {
   const words = [
     new Uint8Array([0, 0, 0, 0]),

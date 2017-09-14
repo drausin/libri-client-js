@@ -60,7 +60,7 @@ export function hmac(key: window.crypto.subtle.CryptoKey,
 }
 
 /**
- * Container for the encrypted api.Metadata of a document.
+ * Container for the encrypted api.Metadata of a entryDocKey.
  */
 export class EncryptedMetadata {
   ciphertext: ArrayBuffer;
@@ -132,7 +132,7 @@ export function decryptMetadata(encMetadata: EncryptedMetadata,
  * Generate initialization vector for the AES-GCM cipher for a particular page.
  *
  * @param {ArrayBuffer} ivSeed - initialization vector seed
- * @param {Integer} pageIndex - index of page in entry
+ * @param {Integer} pageIndex - index of page in entryDocKey
  * @return {Promise.<ArrayBuffer>} - initialization vector for page
  * @private
  */

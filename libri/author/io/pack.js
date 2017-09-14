@@ -1,53 +1,66 @@
+// @flow
+
 import * as docs from '../../librarian/api/documents_pb';
 import * as docslib from '../../librarian/api/documents';
+import * as id from '../../common/id';
 import * as comp from './comp';
 import * as enc from './enc';
 import * as page from './page';
 import * as keys from './keys';
 
 /**
- * A document + its (plaintext) metadata.
+ * A packed entry, possible pages, and its plaintext metadata.
  */
-class DocumentMetadata {
-  document: docs.Document;
+class PackedEntry {
+  entryDocKey: docslib.DocumentKey;
+  pageDocKeys: docslib.DocumentKey[];
   metadata: docs.EntryMetadata;
 
   /**
-   * @param {docs.Document} document
+   * @param {docslib.DocumentKey} entryDocKey
+   * @param {docslib.DocumentKey[]} pageDocKeys
    * @param {docs.EntryMetadata} metadata
    */
-  constructor(document: docs.Document, metadata: docs.EntryMetadata) {
-    this.document = document;
+  constructor(entryDocKey: docslib.DocumentKey,
+      pageDocKeys: docslib.DocumentKey[],
+      metadata: docs.EntryMetadata) {
+    this.entryDocKey = entryDocKey;
+    this.pageDocKeys = pageDocKeys;
     this.metadata = metadata;
   }
 }
 
 /**
- * Pack content into a document.
+ * Pack content into a entryDocKey.
  *
- * @param {Uint8Array} content - content to pack into a document
+ * @param {Uint8Array} content - content to pack into a entryDocKey
  * @param {string} mediaType - content media type
- * @param {keys.EEK} keys - EEK for entry
+ * @param {keys.EEK} keys - EEK for entryDoc
  * @param {Uint8Array} authorPub - author public key
- * @return {Promise.<docs.Document>} - entry document from content
+ * @param {number} pageSize - max bytes per page
+ * @return {Promise.<PackedEntry>} - entryDoc & page documents +
+ * metadata
  * @public
  */
 export function pack(content: Uint8Array, mediaType: string, keys: keys.EEK,
-    authorPub: Uint8Array): DocumentMetadata {
+    authorPub: Uint8Array,
+    pageSize: number = page.defaultSize): Promise<PackedEntry> {
+  // get pages
   const codec = comp.getCompressionCodec(mediaType);
   const compressed = comp.compress(content, codec);
-  const pagesP = page.paginate(compressed, keys, authorPub, page.defaultSize);
-  const uncompressedMacP = enc.hmac(keys.hmacKey, content);
-  const ciphertextP = Promise.all([pagesP]).then((args) => {
-    return getFullCiphertext(args[0]);
+  const pagesP = page.paginate(compressed, keys, authorPub, pageSize);
+
+  // get and encrypt metadata
+  const uncompressedMacP = enc.hmac(keys.hmacKey, content.buffer);
+  const ciphertextP = pagesP.then((pages) => {
+    return getFullCiphertext(pages);
   });
   const ciphertextMacP = ciphertextP.then((ciphertext) => {
-    return enc.hmac(keys.hmacKey, ciphertext);
+    return enc.hmac(keys.hmacKey, ciphertext.buffer);
   });
   const ciphertextSizeP = ciphertextP.then((ciphertext) => {
     return ciphertext.length;
   });
-
   const metadataP = Promise.all([
     ciphertextSizeP, ciphertextMacP, uncompressedMacP,
   ]).then((args) => {
@@ -60,21 +73,138 @@ export function pack(content: Uint8Array, mediaType: string, keys: keys.EEK,
     metadata.setUncompressedMac(new Uint8Array(args[2]));
     return metadata;
   });
-
   const encMetadataP = metadataP.then((metadata) => {
     return enc.encryptMetadata(metadata, keys);
   });
 
-  return Promise.all([pagesP, encMetadataP, metadataP]).then((args) => {
-    return new DocumentMetadata(newEntryDoc(args[0], args[1], authorPub),
-        args[2]);
+  // get page docs and keys
+  const pageDocKeysP = pagesP.then((pages) => {
+    let pageDocKeyPs = [];
+    for (let i = 0; i < pages.length; i++) {
+      pageDocKeyPs[i] = docslib.getPageDocumentKey(pages[i]);
+    }
+    return Promise.all(pageDocKeyPs).then((pageDocKeys) => {
+      return pageDocKeys;
+    });
+  });
+
+  // assemble pages into entry document, key, and metadata
+  return Promise.all([pageDocKeysP, encMetadataP, metadataP]).then((args) => {
+    return newEntryDocKey(args[0], args[1], authorPub).then((entryDocKey) => {
+      return new PackedEntry(entryDocKey, args[0], args[2]);
+    });
   });
 }
 
 /**
- * Construct full ciphertext by concatenating those of individual pages.
+ * Entry content + its plaintext metadata.
+ */
+class UnpackedContent {
+  content: Uint8Array;
+  metadata: docs.EntryMetadata;
+
+  /**
+   * @param {Uint8Array} content
+   * @param {docs.EntryMetadata} metadata
+   */
+  constructor(content: Uint8Array, metadata: docs.EntryMetadata) {
+    this.content = content;
+    this.metadata = metadata;
+  }
+}
+
+/**
+ * Unpack an entry and pages into a content array.
  *
- * @param {doc.Page[]} pages - pages whose ciphertexts to concatenate
+ * @param {docs.Document} entryDoc - entry document to unpack
+ * @param {docslib.DocumentKey[]} pageDocKeys - list of ordered pages with
+ * keys, empty when entry is single-page
+ * @param {keys.EEK} keys - EEK for entryDoc
+ * @return {Promise.<UnpackedContent>}
+ * @public
+ */
+export function unpack(entryDoc: docs.Document,
+    pageDocKeys: docslib.DocumentKey[],
+    keys: keys.EEK): Promise<UnpackedContent> {
+  const encMetadata = new enc.EncryptedMetadata(
+      entryDoc.getEntry().getMetadataCiphertext(),
+      entryDoc.getEntry().getMetadataCiphertextMac(),
+  );
+  const metadataP = enc.decryptMetadata(encMetadata, keys);
+
+  let pages = [];
+  const entry = entryDoc.getEntry();
+  if (entry.getPage() !== undefined) {
+    pages = [entry.getPage()];
+  } else {
+    const pageKeys = entry.getPageKeys().getKeysList();
+    if (pageKeys.length !== pageDocKeys.length) {
+      throw new Error('pageDocKeys has unexpected length (' +
+          pageDocKeys.length + '), expected ' + pageKeys.length);
+    }
+    for (let i = 0; i < pageKeys.length; i++) {
+      const pageID = new id.ID(pageKeys[i]);
+      if (pageDocKeys[i].key.compare(pageID) !== 0) {
+        throw new Error('page has unexpected key');
+      }
+      pages[i] = pageDocKeys[i].document.getPage();
+    }
+  }
+
+  const compressedP = page.unpaginate(pages, keys);
+  const codecP = metadataP.then((metadata) => {
+    return metadata.getCompressionCodec();
+  });
+  const contentP = Promise.all([compressedP, codecP]).then((args) => {
+    return comp.decompress(args[0], args[1]);
+  });
+  return Promise.all([contentP, metadataP]).then((args) => {
+    return new UnpackedContent(args[0], args[1]);
+  });
+}
+
+/**
+ * Generate a new entryDocKey entryDocKey.
+ *
+ * @param {docslib.DocumentKey[]} pageDocKeys - page(s) to extract keys from
+ * @param {enc.EncryptedMetadata} encMetadata - encrypted plaintext metadata
+ * @param {Uint8Array} authorPub - author public key
+ * @return {Promise.<docslib.DocumentKey>} - generated entry doc and key
+ */
+function newEntryDocKey(pageDocKeys: docslib.DocumentKey[],
+    encMetadata: enc.EncryptedMetadata,
+    authorPub: Uint8Array): Promise<docslib.DocumentKey> {
+  let entry = new docs.Entry();
+  entry.setAuthorPublicKey(authorPub);
+  entry.setCreatedTime(Math.floor(Date.now() / 1000));  // ms -> sec
+  entry.setMetadataCiphertext(new Uint8Array(encMetadata.ciphertext));
+  entry.setMetadataCiphertextMac(new Uint8Array(encMetadata.ciphertextMAC));
+
+  // set page or page keys
+  if (pageDocKeys.length === 1) {
+    entry.setPage(pageDocKeys[0].document.getPage());
+  } else {
+    let pageKeys = [];
+    for (let i = 0; i < pageDocKeys.length; i++) {
+      pageKeys[i] = pageDocKeys[i].key.bytes;
+    }
+    const pageKeysObj = new docs.PageKeys();
+    pageKeysObj.setKeysList(pageKeys);
+    entry.setPageKeys(pageKeysObj);
+  }
+
+  // return document and key
+  let doc = new docs.Document();
+  doc.setEntry(entry);
+  return docslib.getKey(doc).then((key) => {
+    return new docslib.DocumentKey(doc, key);
+  });
+}
+
+/**
+ * Construct full ciphertext by concatenating those of individual pageDocKeys.
+ *
+ * @param {doc.Page[]} pages - pageDocKeys whose ciphertexts to concatenate
  * @return {Uint8Array} - concatenated ciphertext
  */
 function getFullCiphertext(pages: docs.Page[]): Uint8Array {
@@ -90,67 +220,3 @@ function getFullCiphertext(pages: docs.Page[]): Uint8Array {
   }
   return ciphertext;
 }
-
-/**
- * Generate a new entry document.
- *
- * @param {docs.Page[]} pages - page(s) to extract keys from
- * @param {enc.EncryptedMetadata} encMetadata - encrypted plaintext metadata
- * @param {Uint8Array} authorPub - author public key
- * @return {docs.Document} - generated document
- */
-function newEntryDoc(pages: docs.Page[], encMetadata: enc.EncryptedMetadata,
-    authorPub: Uint8Array): docs.Document {
-  let doc = new docs.Document();
-  if (pages.length === 1) {
-    doc.setEntry(newSinglePageEntry(pages[0], encMetadata, authorPub));
-  } else {
-    doc.setEntry(newMultiPageEntry(pages, encMetadata, authorPub));
-  }
-  return doc;
-}
-
-/**
- * Generate a new single-page entry.
- *
- * @param {docs.Page} page - page to wrap in entry
- * @param {enc.EncryptedMetadata} encMetadata - encrypted plaintext metadata
- * @param {Uint8Array} authorPub - author public key
- * @return {docs.Entry} - single-page entry
- */
-function newSinglePageEntry(page: docs.Page,
-    encMetadata: enc.EncryptedMetadata, authorPub: Uint8Array): docs.Entry {
-  let entry = new docs.Entry();
-  entry.setAuthorPublicKey(authorPub);
-  entry.setPage(page);
-  entry.setCreatedTime(Date.now() / 1000);  // ms -> sec
-  entry.setMetadataCiphertext(new Uint8Array(encMetadata.ciphertext));
-  entry.setMetadataCiphertextMac(new Uint8Array(encMetadata.ciphertextMAC));
-  return entry;
-}
-
-/**
- * Generate a new multi-page entry from a list of pages.
- *
- * @param {docs.Page[]} pages - pages to extract page keys from
- * @param {enc.EncryptedMetadata} encMetadata - encrypted plaintext metadata
- * @param {Uint8Array} authorPub - author public key
- * @return {docs.Entry} - multi-page entry
- */
-function newMultiPageEntry(pages: docs.Page[],
-    encMetadata: enc.EncryptedMetadata, authorPub: Uint8Array): docs.Entry {
-  let pageKeys = [];
-  for (let i = 0; i < pages.length; i++) {
-    console.log(pages[i].toObject());
-    pageKeys[i] = docslib.getKey(pages[i]).bytes;
-  }
-  let entry = new docs.Entry();
-  entry.setAuthorPublicKey(authorPub);
-  entry.setPageKeys(pageKeys);
-  entry.setCreatedTime(Date.now() / 1000);  // ms -> sec
-  entry.setMetadataCiphertext(encMetadata.ciphertext);
-  entry.setMetadataCiphertextMac(encMetadata.ciphertextMAC);
-  return entry;
-}
-
-// - unpack
