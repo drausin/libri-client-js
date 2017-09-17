@@ -9,7 +9,7 @@ const page = require('./page');
 const pack = require('./pack');
 
 test('pack yields a entryDocKey with expected uncompressed size', () => {
-  const rng = new Math.seedrandom(0);  // eslint-disable-line new-cap
+  const rng = new Math.seedrandom(0); // eslint-disable-line new-cap
   const uncompressedSize = page.defaultSize / 2;
   const singlePageContent = ctesting.newCompressibleBytes(rng,
       uncompressedSize);
@@ -27,7 +27,7 @@ test('pack yields a entryDocKey with expected uncompressed size', () => {
 });
 
 test('page + unpack = original', async () => {
-  const rng = new Math.seedrandom(0);  // eslint-disable-line new-cap
+  const rng = new Math.seedrandom(0); // eslint-disable-line new-cap
   const eekP = keys.newEEK();
   const authorPub = docstest.randBytes(rng, 65);
   const pageSizes = [128, 256, 512, 1024];

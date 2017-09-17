@@ -6,7 +6,7 @@ import {Page} from '../../librarian/api/documents_pb';
 const webcrypto = window.crypto.subtle;
 
 // defaultSize is the default maximum number of bytes in a page.
-export const defaultSize = 2 * 1024 * 1024;  // 2 MB
+export const defaultSize = 2 * 1024 * 1024; // 2 MB
 
 /**
  * Split & encrypt compressed bytes into pageDocKeys.

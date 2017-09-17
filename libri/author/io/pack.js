@@ -185,7 +185,7 @@ function newEntryDocKey(pageDocKeys: DocumentKey[],
     authorPub: Uint8Array): Promise<DocumentKey> {
   let entry = new Entry();
   entry.setAuthorPublicKey(authorPub);
-  entry.setCreatedTime(Math.floor(Date.now() / 1000));  // ms -> sec
+  entry.setCreatedTime(Math.floor(Date.now() / 1000)); // ms -> sec
   entry.setMetadataCiphertext(new Uint8Array(encMetadata.ciphertext));
   entry.setMetadataCiphertextMac(new Uint8Array(encMetadata.ciphertextMAC));
 
