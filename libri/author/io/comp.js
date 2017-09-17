@@ -2,27 +2,26 @@
 
 import pako from 'pako';
 import * as contentType from 'content-type';
+import * as docs from '../../librarian/api/documents_pb';
 
-const noneCodec = 'none';
-const gzipCodec = 'gzip';
-const defaultCodec = gzipCodec;
+const defaultCodec = docs.CompressionCodec.GZIP;
 
 const mediaToCompressionCodec = {
   // don't compress again since it's already compressed
-  'application/x-gzip': noneCodec,
-  'application/x-compressed': noneCodec,
-  'application/x-zip-compressed': noneCodec,
-  'application/zip': noneCodec,
+  'application/x-gzip': docs.CompressionCodec.NONE,
+  'application/x-compressed': docs.CompressionCodec.NONE,
+  'application/x-zip-compressed': docs.CompressionCodec.NONE,
+  'application/zip': docs.CompressionCodec.NONE,
 };
 
 /**
  * Get the compression codec to use for a given media type.
  *
  * @param {string} mediaType
- * @return {string}
+ * @return {docs.CompressionCodec}
  * @public
  */
-function getCompressionCodec(mediaType: string): string {
+function getCompressionCodec(mediaType: string): docs.CompressionCodec {
   if (mediaType === '') {
     return defaultCodec;
   }
@@ -41,11 +40,12 @@ function getCompressionCodec(mediaType: string): string {
  * @return {Uint8Array} compressed data
  * @public
  */
-function compress(uncompressed: Uint8Array, codec: string): Uint8Array {
-  if (codec === noneCodec) {
+function compress(uncompressed: Uint8Array,
+    codec: docs.CompressionCodec): Uint8Array {
+  if (codec === docs.CompressionCodec.NONE) {
     return uncompressed;
   }
-  if (codec === gzipCodec) {
+  if (codec === docs.CompressionCodec.GZIP) {
     return pako.gzip(uncompressed);
   }
   throw new TypeError('unknown compression codec');
@@ -59,11 +59,12 @@ function compress(uncompressed: Uint8Array, codec: string): Uint8Array {
  * @return {Uint8Array} decompressed data
  * @public
  */
-function decompress(compressed: Uint8Array, codec: string): Uint8Array {
-  if (codec === noneCodec) {
+function decompress(compressed: Uint8Array,
+    codec: docs.CompressionCodec): Uint8Array {
+  if (codec === docs.CompressionCodec.NONE) {
     return compressed;
   }
-  if (codec === gzipCodec) {
+  if (codec === docs.CompressionCodec.GZIP) {
     return pako.inflate(compressed);
   }
   throw new TypeError('unknown compression codec');
@@ -71,8 +72,6 @@ function decompress(compressed: Uint8Array, codec: string): Uint8Array {
 
 export {
   defaultCodec,
-  noneCodec,
-  gzipCodec,
   getCompressionCodec,
   compress,
   decompress,

@@ -1,25 +1,28 @@
 // @flow
 
 const enc = require('./enc');
-import type {EEK} from './keys';
-const docs = require('../../librarian/api/documents_pb');
+import {EEK} from './keys';
+import {Page} from '../../librarian/api/documents_pb';
 const webcrypto = window.crypto.subtle;
 
+// defaultSize is the default maximum number of bytes in a page.
+export const defaultSize = 2 * 1024 * 1024; // 2 MB
+
 /**
- * Split & encrypt compressed bytes into pages.
+ * Split & encrypt compressed bytes into pageDocKeys.
  *
- * @param {Uint8Array} compressed - compressed bytes to split into pages
- * @param {EEK} eekKeys - entry encryption keys
+ * @param {Uint8Array} compressed - compressed bytes to split into pageDocKeys
+ * @param {EEK} eekKeys - entryDocKey encryption keys
  * @param {Uint8Array} authorPub - author public key
  * @param {int} pageSize - (max) number of bytes in each page
- * @return {Promise.<docs.Page[]>} array of pages
+ * @return {Promise.<Page[]>} array of pageDocKeys
  * @public
  */
 export function paginate(compressed: Uint8Array,
     eekKeys: EEK,
     authorPub: Uint8Array,
-    pageSize: number): Promise<docs.Page[]> {
-  let nPages = compressed.length / pageSize + 1;
+    pageSize: number): Promise<Page[]> {
+  let nPages = Math.floor(compressed.length / pageSize) + 1;
   if (compressed.length % pageSize === 0) {
     nPages = compressed.length / pageSize;
   }
@@ -47,15 +50,15 @@ export function paginate(compressed: Uint8Array,
       return enc.hmac(eekKeys.hmacKey, value);
     });
 
-    // create page and append to pages list
+    // create page and append to pageDocKeys list
     pagePromises[i] = Promise.all(
         [pageCiphertext, pageCiphertextMAC],
     ).then((args) => {
-      let page = new docs.Page();
+      let page = new Page();
       page.setAuthorPublicKey(authorPub);
       page.setIndex(i);
-      page.setCiphertext(args[0]);
-      page.setCiphertextMac(args[1]);
+      page.setCiphertext(new Uint8Array(args[0]));
+      page.setCiphertextMac(new Uint8Array(args[1]));
       return page;
     });
   }
@@ -67,12 +70,12 @@ export function paginate(compressed: Uint8Array,
 
 /**
  *
- * @param {docs.Page[]} pages - pages to decrypt and concatenate together
- * @param {EEK} eekKeys - entry encryption keys
- * @return {Promise.<Uint8Array>} - compressed bytes assembled from pages
+ * @param {Page[]} pages - pageDocKeys to decrypt and concatenate together
+ * @param {EEK} eekKeys - entryDocKey encryption keys
+ * @return {Promise.<Uint8Array>} - compressed bytes assembled from pageDocKeys
  * @public
  */
-export function unpaginate(pages: docs.Page[],
+export function unpaginate(pages: Page[],
     eekKeys: EEK): Promise<Uint8Array> {
   let compressedPages = [];
   for (let i = 0; i < pages.length; i++) {
@@ -103,7 +106,7 @@ export function unpaginate(pages: docs.Page[],
     });
   }
 
-  // concatenate all pages together
+  // concatenate all pageDocKeys together
   return Promise.all(compressedPages).then((compressedPages2) => {
     let compressedLength = 0;
     for (let i = 0; i < compressedPages2.length; i++) {

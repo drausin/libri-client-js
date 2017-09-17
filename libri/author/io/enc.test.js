@@ -1,4 +1,3 @@
-
 // polyfill webcrypto for tests
 const WebCrypto = require('node-webcrypto-ossl');
 window.crypto = new WebCrypto();
@@ -66,17 +65,19 @@ test('hmac gives expected results', () => {
 });
 
 test('encryptMetadata -> decryptMetadata = original', () => {
-  const metadata = new docs.Metadata();
-  metadata.getPropertiesMap().set('prop 1', new Uint8Array([0, 1, 2, 4]));
-  metadata.getPropertiesMap().set('prop 2', new Uint8Array([5, 6, 7, 8]));
+  const metadata = new docs.EntryMetadata();
+  metadata.setMediaType('application/x-pdf');
+  metadata.setCompressionCodec(docs.CompressionCodec.GZIP);
 
   const eek = keys.newEEK();
   expect.assertions(1);
-  return eek.then((eek2) => {
-    return enc.encryptMetadata(metadata, eek2).then((encryptedMetadata) => {
-      return expect(
-          enc.decryptMetadata(encryptedMetadata, eek2)
-      ).resolves.toEqual(metadata);
-    });
-  });
+  return expect(
+      eek.then((eek2) => {
+        return enc.encryptMetadata(metadata, eek2).then((encryptedMetadata) => {
+          return enc.decryptMetadata(encryptedMetadata, eek2);
+        }).then((metadata) => {
+          return metadata.toObject();
+        });
+      })
+  ).resolves.toEqual(metadata.toObject());
 });

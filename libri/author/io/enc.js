@@ -1,7 +1,7 @@
 // @flow
 
-const docs = require('../../librarian/api/documents_pb');
-import type {EEK} from './keys';
+import {EntryMetadata} from '../../librarian/api/documents_pb';
+import {EEK} from './keys';
 const webcrypto = window.crypto.subtle;
 
 /**
@@ -60,7 +60,7 @@ export function hmac(key: window.crypto.subtle.CryptoKey,
 }
 
 /**
- * Container for the encrypted api.Metadata of a document.
+ * Container for the encrypted api.Metadata of a entryDocKey.
  */
 export class EncryptedMetadata {
   ciphertext: ArrayBuffer;
@@ -77,13 +77,13 @@ export class EncryptedMetadata {
 }
 
 /**
- * Encrypt a docs.Metadata instance.
+ * Encrypt a docs.EntryMetadata instance.
  *
- * @param {docs.Metadata} metadata - metadata to encrypt
+ * @param {EntryMetadata} metadata - metadata to encrypt
  * @param {EEK} keys - EEK to use for encryption
  * @return {Promise.<EncryptedMetadata>} - encrypted metadata
  */
-export function encryptMetadata(metadata: docs.Metadata,
+export function encryptMetadata(metadata: EntryMetadata,
     keys: EEK): Promise<EncryptedMetadata> {
   const plaintext = metadata.serializeBinary();
   const ciphertextP = webcrypto.encrypt(
@@ -91,10 +91,10 @@ export function encryptMetadata(metadata: docs.Metadata,
       keys.aesKey,
       plaintext,
   );
-  const ciphertextMACP = ciphertextP.then((ciphertext) => {
+  const ciphertextMacP = ciphertextP.then((ciphertext) => {
     return hmac(keys.hmacKey, ciphertext);
   });
-  return Promise.all([ciphertextP, ciphertextMACP]).then((args) => {
+  return Promise.all([ciphertextP, ciphertextMacP]).then((args) => {
     return new EncryptedMetadata(args[0], args[1]);
   });
 }
@@ -104,10 +104,10 @@ export function encryptMetadata(metadata: docs.Metadata,
  *
  * @param {EncryptedMetadata} encMetadata - encrypted metadata to decryptPage
  * @param {EEK} keys - EEK to use for decryption
- * @return {Promise.<docs.Metadata>}
+ * @return {Promise.<EntryMetadata>}
  */
 export function decryptMetadata(encMetadata: EncryptedMetadata,
-    keys: EEK): Promise<docs.Metadata> {
+    keys: EEK): Promise<EntryMetadata> {
   return webcrypto.verify(
       {name: 'HMAC'},
       keys.hmacKey,
@@ -124,7 +124,7 @@ export function decryptMetadata(encMetadata: EncryptedMetadata,
         encMetadata.ciphertext,
     );
   }).then((plaintext) => {
-    return docs.Metadata.deserializeBinary(plaintext);
+    return EntryMetadata.deserializeBinary(plaintext);
   });
 }
 
@@ -132,7 +132,7 @@ export function decryptMetadata(encMetadata: EncryptedMetadata,
  * Generate initialization vector for the AES-GCM cipher for a particular page.
  *
  * @param {ArrayBuffer} ivSeed - initialization vector seed
- * @param {Integer} pageIndex - index of page in entry
+ * @param {Integer} pageIndex - index of page in entryDocKey
  * @return {Promise.<ArrayBuffer>} - initialization vector for page
  * @private
  */

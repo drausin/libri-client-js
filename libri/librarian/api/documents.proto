@@ -11,10 +11,10 @@ message Document {
     }
 }
 
-// Envelope defines the public keys an author uses to share an entry encryption key with a
+// Envelope defines the public keys an author uses to share an entryDocKeys encryption key with a
 // particular reader. The shared ECDH secret is used with a key derivation function to generate the
 // key encryption key (KEK), which contains 2 sub-keys:
-// 1) 32-byte AES-256 key, used for encrypting/decrypting the entry encryption key (EEK)
+// 1) 32-byte AES-256 key, used for encrypting/decrypting the entryDocKeys encryption key (EEK)
 // 2) 12-byte EEK block cipher initialization vector
 // 3) 32-byte HMAC-256 key, used for EEK MAC
 //
@@ -28,13 +28,13 @@ message Envelope {
     // 32-byte key of the Entry whose encryption keys are being sent
     bytes entry_key = 1;
 
-    // ECDH public key of the entry author/sender
+    // ECDH public key of the entryDocKeys author/sender
     bytes author_public_key = 2;
 
-    // ECDH public key of the entry reader/recipient
+    // ECDH public key of the entryDocKeys reader/recipient
     bytes reader_public_key = 3;
 
-    // ciphertext of 108-byte entry encryption key (EEK), encrypted with a KEK from the shared
+    // ciphertext of 108-byte entryDocKeys encryption key (EEK), encrypted with a KEK from the shared
     // ECDH shared secret
     bytes eek_ciphertext = 4;
 
@@ -45,10 +45,10 @@ message Envelope {
 // Entry is the main unit of storage in the Libri network.
 message Entry {
 
-    // ECDSA public key of the entry author
+    // ECDSA public key of the entryDocKeys author
     bytes author_public_key = 1;
 
-    // contents of the entry, either a single Page or a list of page keys
+    // contents of the entryDocKeys, either a single Page or a list of page keys
     oneof contents {
         Page page = 2;
         PageKeys page_keys = 3;
@@ -57,7 +57,7 @@ message Entry {
     // created epoch time (seconds since 1970-01-01)
     int64 created_time = 4;
 
-    // ciphertext of marshalled Metadata message properties
+    // ciphertext of marshalled EntryMetadata message properties
     bytes metadata_ciphertext = 5;
 
     // 32-byte MAC of metatadata ciphertext, encrypted with the 32-byte Entry AES-256 key and
@@ -65,20 +65,78 @@ message Entry {
     bytes metadata_ciphertext_mac = 6;
 }
 
-// Metadata is a map of (property, value) combinations.
-message Metadata {
-    map<string, bytes> properties = 1;
+// EntryMetadata contains metadata for an entryDocKeys.
+message EntryMetadata {
+
+    // media/MIME type of the data
+    string media_type = 1;
+
+    // codec used to compress the data
+    CompressionCodec compression_codec = 2;
+
+    // total ciphertext size across all pages
+    uint64 ciphertext_size = 3;
+
+    // MAC of the entire ciphertext
+    bytes ciphertext_mac = 4;
+
+    // total size of the entire uncompressed entryDocKeys
+    uint64 uncompressed_size = 5;
+
+    // MAC of the entire uncompressed entryDocKeys
+    bytes uncompressed_mac = 6;
+
+    // -----------------------------
+    // properties below are optional
+    // -----------------------------
+
+    // domain-specific metadata
+    map<string, bytes> properties = 7;
+
+    // (relative) filepath of the data contained in the entryDocKeys
+    string filepath = 8;
+
+    // schema of the entryDocKeys plaintext
+    EntrySchema schema = 9;
 }
 
-// PageKeys is an ordered list of keys to Page documents that comprise an Entry document.
+// CompressionCodec denotes whether and how the plaintext is compressed before encryption.
+enum CompressionCodec {
+    NONE = 0;
+    GZIP = 1;
+}
+
+// EntrySchema denotes the schema associated with the serialized plaintext of a particular entryDocKeys.
+// Schemas can be of any type (e.g., proto, avro, json, XML, etc).
+//
+// Clients can choose to do what they want with this schema, but commonly they will have a set of
+// schemas they know how to handle explicitly.
+message EntrySchema {
+    // group owning the schema (commonly a Github user, e.g., 'drausin')
+    string group = 1;
+
+    // project in which schema resides (commonly a Github project, e.g., 'libri')
+    string project = 2;
+
+    // path to schema file within project (e.g., 'libri/librarian/api/documents.proto')
+    string path = 3;
+
+    // (optional) name of schema within file (e.g., 'EntrySchema')
+    string name = 4;
+
+    // version of schema (commonly a semver tag, e.g., '0.1.0')
+    string version = 5;
+}
+
+// PageKeys is an ordered list of keys to Page documents that comprise an Entry entryDocKeys.
 message PageKeys {
     repeated bytes keys = 1;
 }
 
-// Page is a portion (possibly all) of an Entry document.
+// Page is a portion (possibly all) of an Entry entryDocKeys.
 message Page {
 
-    // ECDSA public key of the entry author
+    // ECDSA public key of the entryDocKeys author
     bytes author_public_key = 1;
 
     // index of Page within Entry contents
