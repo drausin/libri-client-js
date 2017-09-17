@@ -15,7 +15,7 @@ const KeyPair = EC.KeyPair;
 export class ID {
   keyPair: KeyPair;
   pubId: id.ID;  // redundant id.ID from public key X value
-  publicKeyBytes: Uint8Array;
+  pubKeyBytes: Uint8Array;
 
   /**
    * @param {KeyPair} keyPair - public + private EC key pair
@@ -25,7 +25,7 @@ export class ID {
     const pub = keyPair.getPublic();
     const pubKeyXBytes = new Uint8Array(pub.getX().toArray());
     this.pubId = new id.ID(pubKeyXBytes);
-    this.publicKeyBytes = pub.encode();
+    this.pubKeyBytes = pub.encode();
   }
 }
 

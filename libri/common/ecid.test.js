@@ -8,7 +8,7 @@ import * as ecid from './ecid';
 test('newRandom successfully generates a new ID', () => {
   const id = ecid.newRandom();
   expect(id).toBeTruthy();
-  expect(id.publicKeyBytes.length).toEqual(65);  // uncompressed encoding
+  expect(id.pubKeyBytes.length).toEqual(65);  // uncompressed encoding
 });
 
 test('fromPrivateKey can re-create ID', () => {
