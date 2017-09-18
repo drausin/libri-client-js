@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/drausin/libri-client-js/tree/develop.svg?style=shield)](https://circleci.com/gh/drausin/libri-client-js/tree/develop)
+
 # JS client for Libri network
 
 This repo contains Javascript client library for the [Libri](https://github.com/drausin/libri) network. Libri clients are called "authors," and they handle
