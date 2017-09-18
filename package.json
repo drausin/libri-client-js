@@ -12,8 +12,7 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-scripts": "0.9.5",
-    "seedrandom": "^2.4.3",
-    "utf-8": "^1.0.0"
+    "seedrandom": "^2.4.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -24,6 +23,7 @@
     "babel-preset-react": "^6.24.1",
     "eslint": "^4.1.1",
     "eslint-config-google": "^0.9.1",
+    "eslint-plugin-jest": "^21.1.0",
     "flow-bin": "^0.54.0",
     "jest-cli": "^20.0.4",
     "node-webcrypto-ossl": "^1.0.30"

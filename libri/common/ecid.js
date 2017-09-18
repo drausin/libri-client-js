@@ -13,19 +13,19 @@ const KeyPair = EC.KeyPair;
  * verify.
  */
 export class ID {
-  keyPair: KeyPair;
-  pubId: id.ID;  // redundant id.ID from public key X value
+  key: KeyPair;
+  pubId: id.ID; // redundant id.ID from public key X value
   pubKeyBytes: Uint8Array;
 
   /**
-   * @param {KeyPair} keyPair - public + private EC key pair
+   * @param {KeyPair} key - public + private EC key pair
    */
-  constructor(keyPair: KeyPair) {
-    this.keyPair = keyPair;
-    const pub = keyPair.getPublic();
+  constructor(key: KeyPair) {
+    this.key = key;
+    const pub = key.getPublic();
     const pubKeyXBytes = new Uint8Array(pub.getX().toArray());
     this.pubId = new id.ID(pubKeyXBytes);
-    this.pubKeyBytes = pub.encode();
+    this.pubKeyBytes = new Uint8Array(pub.encode());
   }
 }
 

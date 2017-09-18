@@ -7,7 +7,7 @@ const docslib = require('./documents');
 import * as docstest from './testing';
 
 test('getKey returns consistent keys', () => {
-  const rng = new Math.seedrandom(0);
+  const rng = new Math.seedrandom(0); // eslint-disable-line new-cap
   const doc = docstest.newDocument(rng);
   const key1 = docslib.getKey(doc);
   const key2 = docslib.getKey(doc);

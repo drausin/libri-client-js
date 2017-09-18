@@ -18,7 +18,7 @@ test('newGetRequest returns request with populated fields', () => {
 
 
 test('newPutRequest returns request with populated fields', () => {
-  const rng = new Math.seedrandom(0);  // eslint-disable-line new-cap
+  const rng = new Math.seedrandom(0); // eslint-disable-line new-cap
   const ecid = newRandomECID();
   const key = newRandomID();
   const value = doctest.newDocument(rng);
