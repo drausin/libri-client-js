@@ -51,3 +51,22 @@ export function getPageDocumentKey(page: docs.Page): Promise<DocumentKey> {
     return new DocumentKey(doc, key);
   });
 }
+
+/**
+ * Get the author public key for a given document.
+ *
+ * @param {docs.Document} doc - document to get author pub-key from
+ * @return {!Uint8Array} - author public key
+ */
+export function getAuthorPub(doc: docs.Document): Uint8Array {
+  if (doc.getEnvelope() !== null) {
+    return doc.getEntry().getAuthorPublicKey_asU8();
+  }
+  if (doc.getEntry() !== null) {
+    return doc.getEntry().getAuthorPublicKey_asU8();
+  }
+  if (doc.getPage() !== null) {
+    return doc.getEntry().getAuthorPublicKey_asU8();
+  }
+  throw new Error('unexpected document type'); // should never get here
+}

@@ -1,6 +1,8 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {messageConventions} JS Compiler reports an error if a variable or
+ *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
@@ -87,6 +89,7 @@ proto.api.Document.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.api.Document} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.api.Document.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -154,35 +157,26 @@ proto.api.Document.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.api.Document} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.api.Document.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.api.Document.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.api.Document.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.api.Document} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.api.Document.prototype.serializeBinaryToWriter = function (writer) {
+proto.api.Document.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getEnvelope();
+  f = message.getEnvelope();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -190,7 +184,7 @@ proto.api.Document.prototype.serializeBinaryToWriter = function (writer) {
       proto.api.Envelope.serializeBinaryToWriter
     );
   }
-  f = this.getEntry();
+  f = message.getEntry();
   if (f != null) {
     writer.writeMessage(
       2,
@@ -198,7 +192,7 @@ proto.api.Document.prototype.serializeBinaryToWriter = function (writer) {
       proto.api.Entry.serializeBinaryToWriter
     );
   }
-  f = this.getPage();
+  f = message.getPage();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -240,7 +234,7 @@ proto.api.Document.prototype.hasEnvelope = function() {
 
 
 /**
- * optional Entry entryDocKey = 2;
+ * optional Entry entry = 2;
  * @return {?proto.api.Entry}
  */
 proto.api.Document.prototype.getEntry = function() {
@@ -342,6 +336,7 @@ proto.api.Envelope.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.api.Envelope} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.api.Envelope.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -416,63 +411,54 @@ proto.api.Envelope.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.api.Envelope} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.api.Envelope.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.api.Envelope.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.api.Envelope.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.api.Envelope} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.api.Envelope.prototype.serializeBinaryToWriter = function (writer) {
+proto.api.Envelope.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getEntryKey_asU8();
+  f = message.getEntryKey_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       1,
       f
     );
   }
-  f = this.getAuthorPublicKey_asU8();
+  f = message.getAuthorPublicKey_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       2,
       f
     );
   }
-  f = this.getReaderPublicKey_asU8();
+  f = message.getReaderPublicKey_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       3,
       f
     );
   }
-  f = this.getEekCiphertext_asU8();
+  f = message.getEekCiphertext_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       4,
       f
     );
   }
-  f = this.getEekCiphertextMac_asU8();
+  f = message.getEekCiphertextMac_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       5,
@@ -746,6 +732,7 @@ proto.api.Entry.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.api.Entry} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.api.Entry.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -827,42 +814,33 @@ proto.api.Entry.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.api.Entry} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.api.Entry.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.api.Entry.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.api.Entry.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.api.Entry} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.api.Entry.prototype.serializeBinaryToWriter = function (writer) {
+proto.api.Entry.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getAuthorPublicKey_asU8();
+  f = message.getAuthorPublicKey_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       1,
       f
     );
   }
-  f = this.getPage();
+  f = message.getPage();
   if (f != null) {
     writer.writeMessage(
       2,
@@ -870,7 +848,7 @@ proto.api.Entry.prototype.serializeBinaryToWriter = function (writer) {
       proto.api.Page.serializeBinaryToWriter
     );
   }
-  f = this.getPageKeys();
+  f = message.getPageKeys();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -878,21 +856,21 @@ proto.api.Entry.prototype.serializeBinaryToWriter = function (writer) {
       proto.api.PageKeys.serializeBinaryToWriter
     );
   }
-  f = this.getCreatedTime();
+  f = message.getCreatedTime();
   if (f !== 0) {
     writer.writeInt64(
       4,
       f
     );
   }
-  f = this.getMetadataCiphertext_asU8();
+  f = message.getMetadataCiphertext_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       5,
       f
     );
   }
-  f = this.getMetadataCiphertextMac_asU8();
+  f = message.getMetadataCiphertextMac_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       6,
@@ -1137,6 +1115,7 @@ proto.api.EntryMetadata.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.api.EntryMetadata} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.api.EntryMetadata.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -1146,7 +1125,7 @@ proto.api.EntryMetadata.toObject = function(includeInstance, msg) {
     ciphertextMac: msg.getCiphertextMac_asB64(),
     uncompressedSize: jspb.Message.getFieldWithDefault(msg, 5, 0),
     uncompressedMac: msg.getUncompressedMac_asB64(),
-    propertiesMap: (f = msg.getPropertiesMap()) ? f.toArray() : [],
+    propertiesMap: (f = msg.getPropertiesMap()) ? f.toObject(includeInstance, undefined) : [],
     filepath: jspb.Message.getFieldWithDefault(msg, 8, ""),
     schema: (f = msg.getSchema()) && proto.api.EntrySchema.toObject(includeInstance, f)
   };
@@ -1234,88 +1213,79 @@ proto.api.EntryMetadata.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.api.EntryMetadata} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.api.EntryMetadata.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.api.EntryMetadata.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.api.EntryMetadata.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.api.EntryMetadata} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.api.EntryMetadata.prototype.serializeBinaryToWriter = function (writer) {
+proto.api.EntryMetadata.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getMediaType();
+  f = message.getMediaType();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getCompressionCodec();
+  f = message.getCompressionCodec();
   if (f !== 0.0) {
     writer.writeEnum(
       2,
       f
     );
   }
-  f = this.getCiphertextSize();
+  f = message.getCiphertextSize();
   if (f !== 0) {
     writer.writeUint64(
       3,
       f
     );
   }
-  f = this.getCiphertextMac_asU8();
+  f = message.getCiphertextMac_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       4,
       f
     );
   }
-  f = this.getUncompressedSize();
+  f = message.getUncompressedSize();
   if (f !== 0) {
     writer.writeUint64(
       5,
       f
     );
   }
-  f = this.getUncompressedMac_asU8();
+  f = message.getUncompressedMac_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       6,
       f
     );
   }
-  f = this.getPropertiesMap(true);
+  f = message.getPropertiesMap(true);
   if (f && f.getLength() > 0) {
     f.serializeBinary(7, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeBytes);
   }
-  f = this.getFilepath();
+  f = message.getFilepath();
   if (f.length > 0) {
     writer.writeString(
       8,
       f
     );
   }
-  f = this.getSchema();
+  f = message.getSchema();
   if (f != null) {
     writer.writeMessage(
       9,
@@ -1570,6 +1540,7 @@ proto.api.EntrySchema.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.api.EntrySchema} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.api.EntrySchema.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -1644,63 +1615,54 @@ proto.api.EntrySchema.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.api.EntrySchema} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.api.EntrySchema.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.api.EntrySchema.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.api.EntrySchema.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.api.EntrySchema} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.api.EntrySchema.prototype.serializeBinaryToWriter = function (writer) {
+proto.api.EntrySchema.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getGroup();
+  f = message.getGroup();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = this.getProject();
+  f = message.getProject();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = this.getPath();
+  f = message.getPath();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = this.getName();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = this.getVersion();
+  f = message.getVersion();
   if (f.length > 0) {
     writer.writeString(
       5,
@@ -1835,6 +1797,7 @@ proto.api.PageKeys.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.api.PageKeys} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.api.PageKeys.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -1889,35 +1852,26 @@ proto.api.PageKeys.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.api.PageKeys} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.api.PageKeys.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.api.PageKeys.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.api.PageKeys.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.api.PageKeys} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.api.PageKeys.prototype.serializeBinaryToWriter = function (writer) {
+proto.api.PageKeys.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getKeysList_asU8();
+  f = message.getKeysList_asU8();
   if (f.length > 0) {
     writer.writeRepeatedBytes(
       1,
@@ -1929,19 +1883,15 @@ proto.api.PageKeys.prototype.serializeBinaryToWriter = function (writer) {
 
 /**
  * repeated bytes keys = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
  * @return {!(Array<!Uint8Array>|Array<string>)}
  */
 proto.api.PageKeys.prototype.getKeysList = function() {
-  return /** @type {!(Array<!Uint8Array>|Array<string>)} */ (jspb.Message.getField(this, 1));
+  return /** @type {!(Array<!Uint8Array>|Array<string>)} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
 /**
  * repeated bytes keys = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
  * This is a type-conversion wrapper around `getKeysList()`
  * @return {!Array.<string>}
  */
@@ -1953,8 +1903,6 @@ proto.api.PageKeys.prototype.getKeysList_asB64 = function() {
 
 /**
  * repeated bytes keys = 1;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
  * Note that Uint8Array is not supported on all browsers.
  * @see http://caniuse.com/Uint8Array
  * This is a type-conversion wrapper around `getKeysList()`
@@ -2029,6 +1977,7 @@ proto.api.Page.prototype.toObject = function(opt_includeInstance) {
  *     http://goto/soy-param-migration
  * @param {!proto.api.Page} msg The msg instance to transform.
  * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
 proto.api.Page.toObject = function(includeInstance, msg) {
   var f, obj = {
@@ -2098,56 +2047,47 @@ proto.api.Page.deserializeBinaryFromReader = function(msg, reader) {
 
 
 /**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.api.Page} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.api.Page.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
 proto.api.Page.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
+  proto.api.Page.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
 
 /**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.api.Page} message
  * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.api.Page.prototype.serializeBinaryToWriter = function (writer) {
+proto.api.Page.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = this.getAuthorPublicKey_asU8();
+  f = message.getAuthorPublicKey_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       1,
       f
     );
   }
-  f = this.getIndex();
+  f = message.getIndex();
   if (f !== 0) {
     writer.writeUint32(
       2,
       f
     );
   }
-  f = this.getCiphertext_asU8();
+  f = message.getCiphertext_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       3,
       f
     );
   }
-  f = this.getCiphertextMac_asU8();
+  f = message.getCiphertextMac_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       4,

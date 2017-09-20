@@ -14,6 +14,7 @@ test('Signer.sign returns a valid JWT', () => {
   const key = id.newRandom();
   const rq = requests.newGetRequest(clientID, key);
   const jwtP = signer.sign(rq);
+  expect.assertions(3);
   return jwtP.then((jwt) => {
     const segments = jwt.split('.'); // header.claims.signature
     // expected output from client.Signer in https://github.com/drausin/libri

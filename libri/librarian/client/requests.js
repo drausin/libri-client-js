@@ -1,3 +1,5 @@
+// @flow
+
 import {ID as ECID} from '../../common/ecid';
 import {ID, newRandom as newRandomID} from '../../common/id';
 import {RequestMetadata, GetRequest, PutRequest} from '../api/librarian_pb';
