@@ -68,7 +68,9 @@ export class Publisher {
    */
   publish(doc: docs.Document, authorPub: Uint8Array,
       lc: libgrpc.LibrarianClient): Promise<id.ID> {
-    // TODO (drausin) check author pub consistent
+    if (docslib.getAuthorPub(doc) !== authorPub) {
+      throw new Error('inconsistent author public key');
+    }
     const keyP = docslib.getKey(doc);
     const rqP = keyP.then((key) => {
       return requests.newPutRequest(this.clientID, key, doc);

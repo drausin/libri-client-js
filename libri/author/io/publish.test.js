@@ -1,4 +1,3 @@
-
 // polyfill webcrypto for tests
 const WebCrypto = require('node-webcrypto-ossl');
 window.crypto = new WebCrypto();
@@ -34,4 +33,13 @@ test('publish calls lc.put() and returns doc key as expected', () => {
   return Promise.all([expectedKeyP, actualKeyP]).then((args) => {
     return expect(args[1]).toEqual(args[0]);
   });
+});
+
+test('publish errors when author pubs differ', () => {
+  const rng = new Math.seedrandom(0); // eslint-disable-line new-cap
+  const doc = doctest.newDocument(rng);
+  const publisher = new publish.Publisher(null, null, null);
+  return expect(() => {
+        publisher.publish(doc, doctest.randBytes(rng, 65), null);
+  }).toThrowError('inconsistent author public key');
 });
