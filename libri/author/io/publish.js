@@ -131,11 +131,12 @@ export class Acquirer {
    * @return {docs.Document} - gotten document
    */
   acquire(docKey: id.ID, authorPub: Uint8Array,
-      lc: libgrpc.LibrarianClient): docs.Document {
+      lc: libgrpc.LibrarianClient): Promise<docs.Document> {
     const rq = requests.newGetRequest(this.clientID, docKey);
     const metadataP = context.newSignedMetadata(this.signer, rq);
     const rpP = metadataP.then((metadata) => {
       return new Promise((resolve, reject) => {
+        // TODO (drausin) add CallOptions w/ deadline after metadata
         lc.get(rq, metadata, (err, rp) => {
           if (err !== null) {
             reject(err);
