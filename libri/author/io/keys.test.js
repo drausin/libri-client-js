@@ -30,6 +30,23 @@ test('marshalKEK -> unmarshalKEK = original', () => {
   });
 });
 
+test('KEK.encrypt -> KEK.decrypt = original EEK', () => {
+  const authorKey = ecid.newRandom();
+  const readerKey = ecid.newRandom();
+  const kekP = keys.newKEK(authorKey.key, readerKey.pubKeyBytes);
+  const eekP = keys.newEEK();
+  expect.assertions(1);
+  return Promise.all([eekP, kekP]).then((args) => {
+    const original = args[0];
+    const kek = args[1];
+    return kek.encrypt(original).then((encEEK) => {
+      return kek.decrypt(encEEK);
+    }).then((encDecEEK) => {
+      return expect(encDecEEK).toEqual(original);
+    });
+  });
+});
+
 test('marshalEEK -> unmarshallEEK = original', () => {
   expect.assertions(1);
   return keys.newEEK().then((original) => {

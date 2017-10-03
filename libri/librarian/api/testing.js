@@ -16,19 +16,41 @@ export function newDocument(rng: seedrandom): docs.Document {
 }
 
 /**
- * Generate a random docs.Entry, suitable for usage in testing.
+ * Generate a random docs.Entry of a single page, suitable for usage in testing.
  *
  * @param {seedrandom} rng - random number generator
  * @return {docs.Entry} - random docs.Entry
  */
 export function newSinglePageEntry(rng: seedrandom): docs.Entry {
-  let entry = new docs.Entry();
   const page = newPage(rng);
+  let entry = new docs.Entry();
   entry.setAuthorPublicKey(page.getAuthorPublicKey());
   entry.setCreatedTime(1);
-  entry.setMetadataCiphertext(randBytes(64));
-  entry.setMetadataCiphertextMac(randBytes(32));
+  entry.setMetadataCiphertext(randBytes(rng, 64));
+  entry.setMetadataCiphertextMac(randBytes(rng, 32));
   entry.setPage(page);
+  return entry;
+}
+
+/**
+ * Generate a random docs.Entry of multiple pages, suitable for usage in
+ * testing.
+ *
+ * @param {seedrandom} rng - random number generator
+ * @return {docs.Entry} - random docs.Entry
+ */
+export function newMultiPageEntry(rng: seedrandom): docs.Entry {
+  const pageKeys = new docs.PageKeys();
+  pageKeys.setKeysList([
+    randBytes(rng, 32),
+    randBytes(rng, 32),
+  ]);
+  let entry = new docs.Entry();
+  entry.setAuthorPublicKey(randBytes(rng, 65));
+  entry.setCreatedTime(1);
+  entry.setMetadataCiphertext(randBytes(rng, 64));
+  entry.setMetadataCiphertextMac(randBytes(rng, 32));
+  entry.setPageKeys(pageKeys);
   return entry;
 }
 

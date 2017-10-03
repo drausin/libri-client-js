@@ -2,6 +2,7 @@
 
 import {
   Document,
+  Envelope,
   Entry,
   EntryMetadata,
   Page,
@@ -12,6 +13,7 @@ import {
   getKey,
   getPageDocumentKey,
 } from '../../librarian/api/documents';
+import * as docs from '../../librarian/api/documents_pb';
 import * as id from '../../common/id';
 import * as comp from './comp';
 import * as enc from './enc';
@@ -21,7 +23,7 @@ import {EEK} from './keys';
 /**
  * A packed entry, possible pages, and its plaintext metadata.
  */
-class PackedEntry {
+export class PackedEntry {
   entryDocKey: DocumentKey;
   pageDocKeys: DocumentKey[];
   metadata: EntryMetadata;
@@ -173,7 +175,7 @@ export function unpack(entryDoc: Document, pageDocKeys: DocumentKey[],
 }
 
 /**
- * Generate a new entryDocKey entryDocKey.
+ * Create a new entry document.
  *
  * @param {DocumentKey[]} pageDocKeys - page(s) to extract keys from
  * @param {EncryptedMetadata} encMetadata - encrypted plaintext metadata
@@ -208,6 +210,32 @@ function newEntryDocKey(pageDocKeys: DocumentKey[],
   return getKey(doc).then((key) => {
     return new DocumentKey(doc, key);
   });
+}
+
+/**
+ * Create a new envelope document.
+ *
+ * @param {id.ID} entryKey - entry ID
+ * @param {Uint8Array} authorPub - author public key
+ * @param {Uint8Array} readerPub - reader public key
+ * @param {Uint8Array} eekCiphertext - EEK ciphertext
+ * @param {Uint8Array} eekCiphertextMAC - EEK ciphertext MAC
+ * @return {Promise.<DocumentKey>}
+ */
+export function newEnvelopeDoc(entryKey: id.ID, authorPub: Uint8Array,
+    readerPub: Uint8Array, eekCiphertext: Uint8Array,
+    eekCiphertextMAC: Uint8Array): Promise<docs.Document> {
+  let envelope = new Envelope();
+  envelope.setEntryKey(entryKey.bytes);
+  envelope.setAuthorPublicKey(authorPub);
+  envelope.setReaderPublicKey(readerPub);
+  envelope.setEekCiphertext(eekCiphertext);
+  envelope.setEekCiphertextMac(eekCiphertextMAC);
+
+  // construct doc and key
+  let doc = new Document();
+  doc.setEnvelope(envelope);
+  return doc;
 }
 
 /**

@@ -28,6 +28,23 @@ const eekLength = aesKeyLength + pageIVSeedLength + hmacKeyLength +
 const kekLength = aesKeyLength + blockCipherIVLength + hmacKeyLength;
 
 /**
+ * Container for EEK ciphertext and MAC.
+ */
+export class EncryptedEEK {
+  ciphertext: ArrayBuffer;
+  ciphertextMAC: ArrayBuffer;
+
+  /**
+   * @param {ArrayBuffer} ciphertext
+   * @param {ArrayBuffer} ciphertextMac
+   */
+  constructor(ciphertext: ArrayBuffer, ciphertextMac: ArrayBuffer) {
+    this.ciphertext = ciphertext;
+    this.ciphertextMAC = ciphertextMac;
+  }
+}
+
+/**
  * KEK (key encryption keys) are used to encrypt an EEK.
  */
 export class KEK {
@@ -48,6 +65,55 @@ export class KEK {
     this.aesKey = aesKey;
     this.iv = iv;
     this.hmacKey = hmacKey;
+  }
+
+  /**
+   * Encrypt an EEK.
+   *
+   * @param {EEK} eek - EEK to encrypt
+   * @return {Promise.<EncryptedEEK>}
+   */
+  encrypt(eek: EEK): Promise<EncryptedEEK> {
+    const ciphertextP = marshallEEK(eek).then((eekBytes) => {
+      return webcrypto.encrypt(
+          {name: 'AES-GCM', iv: this.iv},
+          this.aesKey,
+          eekBytes,
+      );
+    });
+    const ciphertextMacP = ciphertextP.then((ciphertext) => {
+      return webcrypto.sign({name: 'HMAC'}, this.hmacKey, ciphertext);
+    });
+    return Promise.all([ciphertextP, ciphertextMacP]).then((args) => {
+      return new EncryptedEEK(args[0], args[1]);
+    });
+  }
+
+  /**
+   * Decrypt an encrypted EEK.
+   *
+   * @param {EncryptedEEK} encEEK - encrypted EEK to decrypt
+   * @return {Promise.<EEK>}
+   */
+  decrypt(encEEK: EncryptedEEK): Promise<EEK> {
+    return webcrypto.verify(
+        {name: 'HMAC'},
+        this.hmacKey,
+        encEEK.ciphertextMAC,
+        encEEK.ciphertext,
+    ).then((isValid) => {
+      if (!isValid) {
+        throw new Error('unexpected EEK MAC');
+      }
+    }).then(() => {
+      return webcrypto.decrypt(
+          {name: 'AES-GCM', iv: this.iv},
+          this.aesKey,
+          encEEK.ciphertext,
+      );
+    }).then((eekBytes) => {
+      return unmarshalEEK(new Uint8Array(eekBytes));
+    });
   }
 }
 
