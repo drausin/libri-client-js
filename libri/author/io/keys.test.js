@@ -55,16 +55,17 @@ test('KEK.encrypt -> KEK.decrypt = original EEK', () => {
   });
 });
 
-test('KEK.decrypt throws error on unexpected MAC', () => {
+test('KEK.decrypt throws error on unexpected MAC', async () => {
   const rng = seedrandom(0);
   const authorKey = ecid.newRandom();
   const readerKey = ecid.newRandom();
-  const kekP = keys.newKEK(authorKey.key, readerKey.pubKeyBytes);
-  return kekP.then((kek) => {
-    return expect(() => {
-      kek.decrypt(docstest.randBytes(rng, 64), docstest.randBytes(rng, 32));
-    }).toThrowError('unexpected EEK MAC');
-  });
+  const kek = await keys.newKEK(authorKey.key, readerKey.pubKeyBytes);
+  expect(() => {
+    kek.decrypt(
+        docstest.randBytes(rng, 64),
+        docstest.randBytes(rng, 32),
+    );
+  }).resolves.toThrowError('unexpected EEK MAC');
 });
 
 test('marshalEEK -> unmarshalEEK = original', () => {
@@ -78,7 +79,7 @@ test('marshalEEK -> unmarshalEEK = original', () => {
   });
 });
 
-test('unmarshalEEK throws error when kekBytes is wrong length', () => {
+test('unmarshalEEK throws error when eekBytes is wrong length', () => {
   expect(() => {
     keys.unmarshalEEK(new Uint8Array(0));
   }).toThrow();
