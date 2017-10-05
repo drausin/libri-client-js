@@ -232,7 +232,7 @@ export function newEnvelopeDoc(entryKey: id.ID, authorPub: Uint8Array,
   envelope.setEekCiphertext(eekCiphertext);
   envelope.setEekCiphertextMac(eekCiphertextMAC);
 
-  // construct doc and key
+  // construct doc
   let doc = new Document();
   doc.setEnvelope(envelope);
   return doc;

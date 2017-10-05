@@ -31,7 +31,7 @@ const kekLength = aesKeyLength + blockCipherIVLength + hmacKeyLength;
  * Container for EEK ciphertext and MAC.
  */
 export class EncryptedEEK {
-  ciphertext: ArrayBuffer;
+  ciphertext: ArrayBuffer; // TODO (drausin) convert to Uint8Array
   ciphertextMAC: ArrayBuffer;
 
   /**
@@ -92,15 +92,16 @@ export class KEK {
   /**
    * Decrypt an encrypted EEK.
    *
-   * @param {EncryptedEEK} encEEK - encrypted EEK to decrypt
+   * @param {Uint8Array} ciphertext - EEK ciphertext
+   * @param {Uint8Array} ciphertextMAC - EEK ciphertext MAC
    * @return {Promise.<EEK>}
    */
-  decrypt(encEEK: EncryptedEEK): Promise<EEK> {
+  decrypt(ciphertext: Uint8Array, ciphertextMAC: Uint8Array): Promise<EEK> {
     return webcrypto.verify(
         {name: 'HMAC'},
         this.hmacKey,
-        encEEK.ciphertextMAC,
-        encEEK.ciphertext,
+        ciphertextMAC,
+        ciphertext,
     ).then((isValid) => {
       if (!isValid) {
         throw new Error('unexpected EEK MAC');
@@ -109,7 +110,7 @@ export class KEK {
       return webcrypto.decrypt(
           {name: 'AES-GCM', iv: this.iv},
           this.aesKey,
-          encEEK.ciphertext,
+          ciphertext,
       );
     }).then((eekBytes) => {
       return unmarshalEEK(new Uint8Array(eekBytes));
@@ -228,7 +229,7 @@ export class EEK {
  *
  * @return {Promise.<EEK>}
  */
-export function newEEK() {
+export function newEEK(): Promise<EEK> {
   const unmarshalled = new Uint8Array(eekLength);
   window.crypto.getRandomValues(unmarshalled);
   return unmarshalEEK(unmarshalled);

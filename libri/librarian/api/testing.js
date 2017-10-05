@@ -1,8 +1,7 @@
+// @flow
 
-import 'seedrandom';
+const seedrandom = require('seedrandom');
 import * as docs from './documents_pb';
-
-const seedrandom = Math.seedrandom;
 
 /**
  * Generate a new docs.Documnet, suitable for testing.

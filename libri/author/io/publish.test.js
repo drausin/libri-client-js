@@ -2,6 +2,7 @@
 const WebCrypto = require('node-webcrypto-ossl');
 window.crypto = new WebCrypto();
 
+const seedrandom = require('seedrandom');
 const ecid = require('../../common/ecid');
 const sign = require('../../librarian/client/sign');
 const doctest = require('../../librarian/api/testing');
@@ -10,7 +11,7 @@ const doclib = require('../../librarian/api/documents');
 const publish = require('./publish');
 
 test('publish calls lc.put() and returns doc key as expected', () => {
-  const rng = new Math.seedrandom(0); // eslint-disable-line new-cap
+  const rng = seedrandom(0);
   const clientID = ecid.newRandom();
   const signer = new sign.Signer(clientID.key);
   const params = publish.newDefaultParameters();

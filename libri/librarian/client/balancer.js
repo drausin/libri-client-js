@@ -1,7 +1,6 @@
 import * as libgrpc from '../../librarian/api/librarian_grpc_pb';
 import * as grpc from 'grpc';
-
-const seedrandom = Math.seedrandom;
+const seedrandom = require('seedrandom');
 
 /**
  * Selects a client uniformly at random.

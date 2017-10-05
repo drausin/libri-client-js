@@ -126,11 +126,12 @@ export class Acquirer {
    * Gets a document using the librarian client.
    *
    * @param {!id.ID} docKey - key of document to get
-   * @param {!Uint8Array} authorPub - expected document author public key
+   * @param {Uint8Array|null} authorPub - (optional) expected document author
+   * public key
    * @param {!libgrpc.LibrarianClient} lc - librarian client to use for get
    * @return {docs.Document} - gotten document
    */
-  acquire(docKey: id.ID, authorPub: Uint8Array,
+  acquire(docKey: id.ID, authorPub: Uint8Array|null,
       lc: libgrpc.LibrarianClient): Promise<docs.Document> {
     const rq = requests.newGetRequest(this.clientID, docKey);
     const metadataP = context.newSignedMetadata(this.signer, rq);
@@ -150,7 +151,7 @@ export class Acquirer {
         throw errUnexpectedRequestID;
       }
       const doc = rp.getValue();
-      if (docslib.getAuthorPub(doc) !== authorPub) {
+      if (authorPub !== null && docslib.getAuthorPub(doc) !== authorPub) {
         throw errInconsistentAuthorPub;
       }
       // TODO (drausin) validate document

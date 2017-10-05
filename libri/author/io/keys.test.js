@@ -2,6 +2,8 @@
 const WebCrypto = require('node-webcrypto-ossl');
 window.crypto = new WebCrypto();
 
+const seedrandom = require('seedrandom');
+const docstest = require('../../librarian/api/testing');
 const keys = require('./keys');
 const ecid = require('../../common/ecid');
 
@@ -30,6 +32,12 @@ test('marshalKEK -> unmarshalKEK = original', () => {
   });
 });
 
+test('unmarshalKEK throws error when kekBytes is wrong length', () => {
+  expect(() => {
+    keys.unmarshalKEK(new Uint8Array(0));
+  }).toThrow();
+});
+
 test('KEK.encrypt -> KEK.decrypt = original EEK', () => {
   const authorKey = ecid.newRandom();
   const readerKey = ecid.newRandom();
@@ -40,14 +48,26 @@ test('KEK.encrypt -> KEK.decrypt = original EEK', () => {
     const original = args[0];
     const kek = args[1];
     return kek.encrypt(original).then((encEEK) => {
-      return kek.decrypt(encEEK);
+      return kek.decrypt(encEEK.ciphertext, encEEK.ciphertextMAC);
     }).then((encDecEEK) => {
       return expect(encDecEEK).toEqual(original);
     });
   });
 });
 
-test('marshalEEK -> unmarshallEEK = original', () => {
+test('KEK.decrypt throws error on unexpected MAC', () => {
+  const rng = seedrandom(0);
+  const authorKey = ecid.newRandom();
+  const readerKey = ecid.newRandom();
+  const kekP = keys.newKEK(authorKey.key, readerKey.pubKeyBytes);
+  return kekP.then((kek) => {
+    return expect(() => {
+      kek.decrypt(docstest.randBytes(rng, 64), docstest.randBytes(rng, 32));
+    }).toThrowError('unexpected EEK MAC');
+  });
+});
+
+test('marshalEEK -> unmarshalEEK = original', () => {
   expect.assertions(1);
   return keys.newEEK().then((original) => {
     return expect(
@@ -57,4 +77,11 @@ test('marshalEEK -> unmarshallEEK = original', () => {
     ).resolves.toEqual(original);
   });
 });
+
+test('unmarshalEEK throws error when kekBytes is wrong length', () => {
+  expect(() => {
+    keys.unmarshalEEK(new Uint8Array(0));
+  }).toThrow();
+});
+
 
