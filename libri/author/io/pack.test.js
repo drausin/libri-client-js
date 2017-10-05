@@ -17,6 +17,7 @@ test('pack yields a entryDocKey with expected uncompressed size', () => {
   const eekP = keys.newEEK();
   const authorPub = docstest.randBytes(rng, 65);
 
+  expect.assertions(1);
   return eekP.then((eek) => {
     return pack.pack(singlePageContent, mediaType, eek, authorPub);
   }).then((packedEntry) => {
@@ -26,7 +27,7 @@ test('pack yields a entryDocKey with expected uncompressed size', () => {
   });
 });
 
-test('page + unpack = original', async () => {
+test('pack + unpack = original', async () => {
   const rng = new Math.seedrandom(0); // eslint-disable-line new-cap
   const eekP = keys.newEEK();
   const authorPub = docstest.randBytes(rng, 65);

@@ -11,7 +11,7 @@ fix:
 
 proto:
 	@echo "--> Running protoc"
-	@pushd libri && protoc ./librarian/api/*.proto --js_out=import_style=commonjs,binary:. && popd
+	@pushd libri && ../node_modules/grpc-tools/bin/protoc.js ./librarian/api/*.proto --js_out=import_style=commonjs,binary:. --grpc_out=. && popd
 
 test:
 	@echo "--> Running npm test"
