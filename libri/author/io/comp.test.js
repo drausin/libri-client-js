@@ -25,7 +25,7 @@ test('compress throws error with bad codec', () => {
   const original = new Uint8Array([0, 1, 2, 3, 4, 5]);
   expect(() => {
     comp.compress(original, 3);
-  }).toThrowError('unknown compression codec',);
+  }).toThrowError('unknown compression codec');
 });
 
 test('decompress throws error with bad codec', () => {
