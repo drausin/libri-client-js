@@ -63,14 +63,14 @@ export function hmac(key: window.crypto.subtle.CryptoKey,
  * Container for the encrypted api.Metadata of a entryDocKey.
  */
 export class EncryptedMetadata {
-  ciphertext: ArrayBuffer;
-  ciphertextMAC: ArrayBuffer;
+  ciphertext: Uint8Array;
+  ciphertextMAC: Uint8Array;
 
   /**
-   * @param {ArrayBuffer} ciphertext - encrypted serialized docs.Metadata
-   * @param {ArrayBuffer} ciphertextMAC - MAC of ciphertext
+   * @param {Uint8Array} ciphertext - encrypted serialized docs.Metadata
+   * @param {Uint8Array} ciphertextMAC - MAC of ciphertext
    */
-  constructor(ciphertext: ArrayBuffer, ciphertextMAC: ArrayBuffer) {
+  constructor(ciphertext: Uint8Array, ciphertextMAC: Uint8Array) {
     this.ciphertext = ciphertext;
     this.ciphertextMAC = ciphertextMAC;
   }
@@ -95,7 +95,10 @@ export function encryptMetadata(metadata: EntryMetadata,
     return hmac(keys.hmacKey, ciphertext);
   });
   return Promise.all([ciphertextP, ciphertextMacP]).then((args) => {
-    return new EncryptedMetadata(args[0], args[1]);
+    return new EncryptedMetadata(
+        new Uint8Array(args[0]),
+        new Uint8Array(args[1]),
+    );
   });
 }
 
@@ -111,8 +114,8 @@ export function decryptMetadata(encMetadata: EncryptedMetadata,
   return webcrypto.verify(
       {name: 'HMAC'},
       keys.hmacKey,
-      encMetadata.ciphertextMAC,
-      encMetadata.ciphertext,
+      encMetadata.ciphertextMAC.buffer,
+      encMetadata.ciphertext.buffer,
   ).then((isValid) => {
     if (!isValid) {
       throw new Error('unexpected metadata MAC');

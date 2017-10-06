@@ -18,17 +18,12 @@ test('newKEK(priv1, pub2) generates same KEK as newKEK(priv2, pub1)', () => {
   });
 });
 
-test('marshalKEK -> unmarshalKEK = original', () => {
-  const authorKey = ecid.newRandom();
-  const readerKey = ecid.newRandom();
-  const kekP = keys.newKEK(authorKey.key, readerKey.pubKeyBytes);
+test('unmarshalKEK -> marshalKEK = original', () => {
+  const rng = seedrandom(0);
+  const marshaled = docstest.randBytes(rng, keys.kekLength);
   expect.assertions(1);
-  return kekP.then((original) => {
-    return expect(
-        keys.marshallKEK(original).then((marshalled) => {
-          return keys.unmarshalKEK(marshalled);
-        })
-    ).resolves.toEqual(original);
+  return keys.unmarshalKEK(marshaled).then((unmarshaled) => {
+    return expect(keys.marshallKEK(unmarshaled)).resolves.toEqual(marshaled);
   });
 });
 
@@ -61,28 +56,15 @@ test('KEK.decrypt throws error on unexpected MAC', async () => {
   const readerKey = ecid.newRandom();
   const kek = await keys.newKEK(authorKey.key, readerKey.pubKeyBytes);
   expect(() => {
-    kek.decrypt(
-        docstest.randBytes(rng, 64),
-        docstest.randBytes(rng, 32),
-    );
+    kek.decrypt(docstest.randBytes(rng, 64), docstest.randBytes(rng, 32));
   }).resolves.toThrowError('unexpected EEK MAC');
 });
 
-test('marshalEEK -> unmarshalEEK = original', () => {
+test('unmarshalEEK -> marshalEEK = original', () => {
+  const rng = seedrandom(0);
+  const marshaled = docstest.randBytes(rng, keys.eekLength);
   expect.assertions(1);
-  return keys.newEEK().then((original) => {
-    return expect(
-        keys.marshallEEK(original).then((marshalled) => {
-          return keys.unmarshalEEK(marshalled);
-        })
-    ).resolves.toEqual(original);
+  return keys.unmarshalEEK(marshaled).then((unmarshaled) => {
+    return expect(keys.marshallEEK(unmarshaled)).resolves.toEqual(marshaled);
   });
 });
-
-test('unmarshalEEK throws error when eekBytes is wrong length', () => {
-  expect(() => {
-    keys.unmarshalEEK(new Uint8Array(0));
-  }).toThrow();
-});
-
-

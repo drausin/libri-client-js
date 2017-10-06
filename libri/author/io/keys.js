@@ -22,23 +22,23 @@ const hmacKeyLength = 32;
 // vector.
 const blockCipherIVLength = 12;
 
-const eekLength = aesKeyLength + pageIVSeedLength + hmacKeyLength +
+export const eekLength = aesKeyLength + pageIVSeedLength + hmacKeyLength +
     blockCipherIVLength;
 
-const kekLength = aesKeyLength + blockCipherIVLength + hmacKeyLength;
+export const kekLength = aesKeyLength + blockCipherIVLength + hmacKeyLength;
 
 /**
  * Container for EEK ciphertext and MAC.
  */
 export class EncryptedEEK {
-  ciphertext: ArrayBuffer; // TODO (drausin) convert to Uint8Array
-  ciphertextMAC: ArrayBuffer;
+  ciphertext: Uint8Array;
+  ciphertextMAC: Uint8Array;
 
   /**
-   * @param {ArrayBuffer} ciphertext
-   * @param {ArrayBuffer} ciphertextMac
+   * @param {Uint8Array} ciphertext
+   * @param {Uint8Array} ciphertextMac
    */
-  constructor(ciphertext: ArrayBuffer, ciphertextMac: ArrayBuffer) {
+  constructor(ciphertext: Uint8Array, ciphertextMac: Uint8Array) {
     this.ciphertext = ciphertext;
     this.ciphertextMAC = ciphertextMac;
   }
@@ -85,7 +85,7 @@ export class KEK {
       return webcrypto.sign({name: 'HMAC'}, this.hmacKey, ciphertext);
     });
     return Promise.all([ciphertextP, ciphertextMacP]).then((args) => {
-      return new EncryptedEEK(args[0], args[1]);
+      return new EncryptedEEK(new Uint8Array(args[0]), new Uint8Array(args[1]));
     });
   }
 
@@ -149,11 +149,11 @@ export function marshallKEK(kekKey: KEK): Promise<Uint8Array> {
   return Promise.all([aesKeyBytes, hmacKeyBytes]).then((args) => {
     let offset = 0;
     const kekBytes = new Uint8Array(kekLength);
-    kekBytes.set(args[0], offset);
+    kekBytes.set(new Uint8Array(args[0]), offset);
     offset += aesKeyLength;
     kekBytes.set(new Uint8Array(kekKey.iv), offset);
     offset += blockCipherIVLength;
-    kekBytes.set(args[1], offset);
+    kekBytes.set(new Uint8Array(args[1]), offset);
     return kekBytes;
   });
 }
@@ -230,9 +230,9 @@ export class EEK {
  * @return {Promise.<EEK>}
  */
 export function newEEK(): Promise<EEK> {
-  const unmarshalled = new Uint8Array(eekLength);
-  window.crypto.getRandomValues(unmarshalled);
-  return unmarshalEEK(unmarshalled);
+  const marshaled = new Uint8Array(eekLength);
+  window.crypto.getRandomValues(marshaled);
+  return unmarshalEEK(marshaled);
 }
 
 /**
@@ -242,17 +242,17 @@ export function newEEK(): Promise<EEK> {
  * @return {Promise.<Uint8Array>} - marshalled EEK byte representation
  */
 export function marshallEEK(eekKey: EEK): Promise<Uint8Array> {
-  const aesKeyBytes = webcrypto.exportKey('raw', eekKey.aesKey);
-  const hmacKeyBytes = webcrypto.exportKey('raw', eekKey.hmacKey);
+  const aesKeyBytesP = webcrypto.exportKey('raw', eekKey.aesKey);
+  const hmacKeyBytesP = webcrypto.exportKey('raw', eekKey.hmacKey);
 
-  return Promise.all([aesKeyBytes, hmacKeyBytes]).then((args) => {
+  return Promise.all([aesKeyBytesP, hmacKeyBytesP]).then((args) => {
     let offset = 0;
     const eekBytes = new Uint8Array(eekLength);
-    eekBytes.set(args[0], offset);
+    eekBytes.set(new Uint8Array(args[0]), offset);
     offset += aesKeyLength;
     eekBytes.set(new Uint8Array(eekKey.pageIVSeed), offset);
     offset += pageIVSeedLength;
-    eekBytes.set(args[1], offset);
+    eekBytes.set(new Uint8Array(args[1]), offset);
     offset += hmacKeyLength;
     eekBytes.set(new Uint8Array(eekKey.metadataIV), offset);
     return eekBytes;

@@ -66,6 +66,23 @@ export function newKeychain(n: number): Keychain {
   return new Keychain(ecids);
 }
 
+/**
+ * Create a new {Keychain} from the union of keys from multiple keychains.
+ *
+ * @param {Keychain[]} keychains - keychains whose keys to union
+ * @return {Keychain}
+ */
+export function newUnion(keychains: Keychain[]) {
+  let ecids = [];
+  for (let i = 0; i < keychains.length; i++) {
+    for (let j = 0; j < keychains[i].pubs.length; j++) {
+      const pub = keychains[i].pubs[j];
+      ecids.push(keychains[i].privs[pub]);
+    }
+  }
+  return new Keychain(ecids);
+}
+
 // TODO (drausin)
 // - save
 // - load

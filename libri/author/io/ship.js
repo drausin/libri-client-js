@@ -37,7 +37,7 @@ export class Shipper {
    * @param {Uint8Array} readerPub - reader public key bytes
    * @param {keys.KEK} kek - KEK to use for encrypting EEK
    * @param {keys.EEK} eek - EEK to store in envelope
-   * @return {Promise.<docslib.DocumentKey>}
+   * @return {Promise.<docslib.DocumentKey>} - envelope document & key
    */
   shipEntry(packedEntry: pack.PackedEntry, authorPub: Uint8Array,
       readerPub: Uint8Array, kek: keys.KEK,
