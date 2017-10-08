@@ -86,8 +86,10 @@ export class Publisher {
       return new Promise((resolve, reject) => {
         // TODO (drausin) add CallOptions w/ deadline after metadata
         lc.put(args[0], args[1], (err, rp) => {
-          if (err !== null) {
+          console.log(err, rp);
+          if (err) {
             reject(err);
+            return;
           }
           resolve(rp);
         });

@@ -51,7 +51,8 @@ test('upload -> download = original', async () => {
   const mediaTypes = ['applications/x-pdf', 'application/x-gzip'];
   const cases = caseCrossProduct(pageSizes, uncompressedSizes, mediaTypes);
 
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000; // since there's a lot going on in
+                                            // each upload and download call
   expect.assertions(cases.length);
   for (let c = 0; c < cases.length; c++) {
     auth.config.pageSize = cases[c].pageSize;
