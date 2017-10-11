@@ -10,6 +10,7 @@
     "google-protobuf": "^3.4.0",
     "grpc": "^1.6.0",
     "grpc-tools": "^1.6.0",
+    "jest-cli": "^21.2.1",
     "pako": "^1.0.5",
     "protobufjs": "^6.8.0",
     "react": "^15.6.1",
@@ -28,7 +29,7 @@
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-jest": "^21.1.0",
     "flow-bin": "^0.54.0",
-    "jest-cli": "^20.0.4",
+    "jest": "^21.2.1",
     "node-webcrypto-ossl": "^1.0.30"
   },
   "scripts": {
