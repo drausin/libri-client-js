@@ -32,9 +32,6 @@ export class UniformBalancer {
           grpc.credentials.createInsecure());
       let deadline = new Date();
       deadline.setSeconds(deadline.getSeconds() + 5);
-      this.clients[i].waitForReady(deadline, (arg) => {
-        console.log(arg);
-      });
     }
     return this.clients[i];
   }
