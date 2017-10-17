@@ -675,38 +675,12 @@ proto.api.Envelope.prototype.setEekCiphertextMac = function(value) {
  * @constructor
  */
 proto.api.Entry = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.api.Entry.oneofGroups_);
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.api.Entry, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   proto.api.Entry.displayName = 'proto.api.Entry';
 }
-/**
- * Oneof group definitions for this message. Each group defines the field
- * numbers belonging to that group. When of these fields' value is set, all
- * other fields in the group are cleared. During deserialization, if multiple
- * fields are encountered for a group, only the last value seen will be kept.
- * @private {!Array<!Array<number>>}
- * @const
- */
-proto.api.Entry.oneofGroups_ = [[2,3]];
-
-/**
- * @enum {number}
- */
-proto.api.Entry.ContentsCase = {
-  CONTENTS_NOT_SET: 0,
-  PAGE: 2,
-  PAGE_KEYS: 3
-};
-
-/**
- * @return {proto.api.Entry.ContentsCase}
- */
-proto.api.Entry.prototype.getContentsCase = function() {
-  return /** @type {proto.api.Entry.ContentsCase} */(jspb.Message.computeOneofCase(this, proto.api.Entry.oneofGroups_[0]));
-};
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -793,7 +767,7 @@ proto.api.Entry.deserializeBinaryFromReader = function(msg, reader) {
       msg.setPageKeys(value);
       break;
     case 4:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readUint32());
       msg.setCreatedTime(value);
       break;
     case 5:
@@ -858,7 +832,7 @@ proto.api.Entry.serializeBinaryToWriter = function(message, writer) {
   }
   f = message.getCreatedTime();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeUint32(
       4,
       f
     );
@@ -931,7 +905,7 @@ proto.api.Entry.prototype.getPage = function() {
 
 /** @param {?proto.api.Page|undefined} value */
 proto.api.Entry.prototype.setPage = function(value) {
-  jspb.Message.setOneofWrapperField(this, 2, proto.api.Entry.oneofGroups_[0], value);
+  jspb.Message.setWrapperField(this, 2, value);
 };
 
 
@@ -961,7 +935,7 @@ proto.api.Entry.prototype.getPageKeys = function() {
 
 /** @param {?proto.api.PageKeys|undefined} value */
 proto.api.Entry.prototype.setPageKeys = function(value) {
-  jspb.Message.setOneofWrapperField(this, 3, proto.api.Entry.oneofGroups_[0], value);
+  jspb.Message.setWrapperField(this, 3, value);
 };
 
 
@@ -980,7 +954,7 @@ proto.api.Entry.prototype.hasPageKeys = function() {
 
 
 /**
- * optional int64 created_time = 4;
+ * optional uint32 created_time = 4;
  * @return {number}
  */
 proto.api.Entry.prototype.getCreatedTime = function() {

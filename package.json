@@ -49,6 +49,9 @@
       "!**/librarian/api/*_pb.js",
       "!**/coverage/**"
     ],
+    "testPathIgnorePatterns": [
+      "libri/acceptance/.+\\.test\\.js"
+    ],
     "globals": {
       "window": true
     }

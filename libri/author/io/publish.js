@@ -86,7 +86,6 @@ export class Publisher {
       return new Promise((resolve, reject) => {
         // TODO (drausin) add CallOptions w/ deadline after metadata
         lc.put(args[0], args[1], (err, rp) => {
-          console.log(err, rp);
           if (err) {
             reject(err);
             return;
@@ -96,8 +95,8 @@ export class Publisher {
       });
     });
     return Promise.all([rqP, rpP, docKeyP]).then((args) => {
-      if (args[0].getMetadata().getRequestId()
-          !== args[1].getMetadata().getRequestId()) {
+      const rqId = args[0].getMetadata().getRequestId();
+      if (!equal(rqId, args[1].getMetadata().getRequestId())) {
         throw errUnexpectedRequestID;
       }
       return args[2];
@@ -149,15 +148,31 @@ export class Acquirer {
       });
     });
     return rpP.then((rp) => {
-      if (rp.getMetadata().getRequestId() !== rq.getMetadata().getRequestId()) {
+      const rqId = rp.getMetadata().getRequestId();
+      if (!equal(rqId, rq.getMetadata().getRequestId())) {
         throw errUnexpectedRequestID;
       }
       const doc = rp.getValue();
-      if (authorPub !== null && docslib.getAuthorPub(doc) !== authorPub) {
+      if (authorPub !== null && !equal(docslib.getAuthorPub(doc), authorPub)) {
         throw errInconsistentAuthorPub;
       }
       // TODO (drausin) validate document
       return doc;
     });
   }
+}
+
+function equal(x: Uint8Array, y: Uint8Array): boolean {
+  if (x === y) {
+    return true;
+  }
+  if (x.length !== y.length) {
+    return false;
+  }
+  for (let i = 0; i < x.length; i++) {
+    if (x[i] !== y[i]) {
+      return false;
+    }
+  }
+  return true;
 }

@@ -30,7 +30,9 @@ test('can upload and download a document', async () => {
   const content1 = testing.newCompressibleBytes(rng, contentSize);
 
   // do upload -> download
+  console.log('uploading');
   const envDocKey = await a.upload(content1, mediaType);
+  console.log('downloading');
   const content2 = await a.download(envDocKey.key);
 
   // check

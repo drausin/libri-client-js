@@ -13,7 +13,7 @@ if [[ ! -d "${LOCAL_TEST_DATA_DIR}" ]]; then
 fi
 
 # container command contants
-VERSION="test" # "0.1.0" temporary
+VERSION="snapshot" # "0.1.0"
 IMAGE="daedalus2718/libri:${VERSION}"
 KEYCHAIN_DIR="/keychains"  # inside container
 CONTAINER_TEST_DATA_DIR="/test-data"
@@ -40,6 +40,7 @@ for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
     name="librarian-${c}"
     docker run --name "${name}" --net=libri -d -p ${port}:${port} ${IMAGE} \
         librarian start \
+        --logLevel debug \
         --nSubscriptions 0 \
         --publicPort ${port} \
         --publicHost ${name} \

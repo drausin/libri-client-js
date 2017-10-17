@@ -114,8 +114,8 @@ export function decryptMetadata(encMetadata: EncryptedMetadata,
   return webcrypto.verify(
       {name: 'HMAC'},
       keys.hmacKey,
-      encMetadata.ciphertextMAC.buffer,
-      encMetadata.ciphertext.buffer,
+      encMetadata.ciphertextMAC,
+      encMetadata.ciphertext,
   ).then((isValid) => {
     if (!isValid) {
       throw new Error('unexpected metadata MAC');

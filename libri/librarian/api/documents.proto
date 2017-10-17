@@ -49,13 +49,13 @@ message Entry {
     bytes author_public_key = 1;
 
     // contents of the entryDocKeys, either a single Page or a list of page keys
-    oneof contents {
-        Page page = 2;
-        PageKeys page_keys = 3;
-    }
+//    oneof contents {
+    Page page = 2;
+    PageKeys page_keys = 3;
+//    }
 
     // created epoch time (seconds since 1970-01-01)
-    int64 created_time = 4;
+    uint32 created_time = 4;
 
     // ciphertext of marshalled EntryMetadata message properties
     bytes metadata_ciphertext = 5;
