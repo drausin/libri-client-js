@@ -54,13 +54,12 @@ test('KEK.decrypt throws error on unexpected MAC', async () => {
   const rng = seedrandom(0);
   const authorKey = ecid.newRandom();
   const readerKey = ecid.newRandom();
-  const badCiphertext = docstest.randBytes(rng, 64);
-  const badCiphertextMAC = docstest.randBytes(rng, 32);
   const kek = await keys.newKEK(authorKey.key, readerKey.pubKeyBytes);
   expect.assertions(1);
   return expect(
       kek.decrypt(docstest.randBytes(rng, 64), docstest.randBytes(rng, 32))
   ).rejects.toEqual(new Error('unexpected EEK MAC'));
+});
 
 test('unmarshalEEK -> marshalEEK = original', () => {
   const rng = seedrandom(0);
