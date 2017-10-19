@@ -68,6 +68,8 @@ test('can upload & download a 10 MB compressed file', () => {
  * @return {*}
  */
 function testUploadDownload(contentSize, mediaType) {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
+
   const originalContent = testing.newCompressibleBytes(rng, contentSize);
   expect.assertions(1);
   return a.upload(originalContent, mediaType).then((envDocKey) => {
