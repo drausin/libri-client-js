@@ -13,7 +13,7 @@ if [[ ! -d "${LOCAL_TEST_DATA_DIR}" ]]; then
 fi
 
 # container command contants
-VERSION="snapshot" # "0.1.0"
+VERSION="snapshot" # TODO (drausin) replace with >= 0.2.0 when available
 IMAGE="daedalus2718/libri:${VERSION}"
 KEYCHAIN_DIR="/keychains"  # inside container
 CONTAINER_TEST_DATA_DIR="/test-data"
@@ -33,10 +33,8 @@ docker network create libri
 echo
 echo "starting librarian peers..."
 librarian_addrs=""
-librarian_containers=""
 for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
     port=$((20100+c))
-    metricsPort=$((20200+c))
     name="librarian-${c}"
     docker run --name "${name}" --net=libri -d -p ${port}:${port} ${IMAGE} \
         librarian start \
@@ -45,10 +43,8 @@ for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
         --publicPort ${port} \
         --publicHost ${name} \
         --localPort ${port} \
-        --localMetricsPort ${metricsPort} \
         --bootstraps "librarian-0:20100"
     librarian_addrs="${name}:${port},${librarian_addrs}"
-    librarian_containers="${name} ${librarian_containers}"
 done
 librarian_addrs=${librarian_addrs::-1}  # remove trailing space
 sleep 5
@@ -57,11 +53,12 @@ echo
 echo "testing librarians health..."
 docker run --rm --net=libri ${IMAGE} test health -a "${librarian_addrs}"
 
-# TODO (drausin) add jest acceptance test
+# run tests
+./node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
 
-#echo
-#echo "cleaning up..."
-#rm -f ${LOCAL_TEST_DATA_DIR}/downloaded.*
-#docker ps | grep 'libri' | awk '{print $1}' | xargs -I {} docker stop {} || true
-#docker ps -a | grep 'libri' | awk '{print $1}' | xargs -I {} docker rm {} || true
-#docker network list | grep 'libri' | awk '{print $2}' | xargs -I {} docker network rm {} || true
+echo
+echo "cleaning up..."
+rm -f ${LOCAL_TEST_DATA_DIR}/downloaded.*
+docker ps | grep 'libri' | awk '{print $1}' | xargs -I {} docker stop {} || true
+docker ps -a | grep 'libri' | awk '{print $1}' | xargs -I {} docker rm {} || true
+docker network list | grep 'libri' | awk '{print $2}' | xargs -I {} docker network rm {} || true

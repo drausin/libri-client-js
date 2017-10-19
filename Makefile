@@ -1,4 +1,7 @@
 
+acceptance:
+	@echo "--> Running acceptance tests"
+	@./libri/acceptance/author-test.sh
 
 lint:
 	@echo "--> Running linters"
@@ -14,5 +17,5 @@ proto:
 	@pushd libri && ../node_modules/grpc-tools/bin/protoc.js ./librarian/api/*.proto --js_out=import_style=commonjs,binary:. --grpc_out=. && popd
 
 test:
-	@echo "--> Running npm test"
-	@npm test
+	@echo "--> Running unit tests"
+	@./node_modules/jest-cli/bin/jest.js --testPathIgnorePatterns 'libri/acceptance/.+.test.js'

@@ -162,6 +162,13 @@ export class Acquirer {
   }
 }
 
+/**
+ * Determine whether two byte arrays are equal.
+ *
+ * @param {Uint8Array} x
+ * @param {Uint8Array} y
+ * @return {boolean} - whether the two arrays are equal
+ */
 function equal(x: Uint8Array, y: Uint8Array): boolean {
   if (x === y) {
     return true;
