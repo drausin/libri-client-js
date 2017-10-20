@@ -5,6 +5,7 @@ set -eou pipefail
 
 # local and filesystem constants
 LOCAL_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_DIR="$(cd ${LOCAL_DIR}/../.. && pwd)"
 
 # container command contants
 VERSION="snapshot" # TODO (drausin) replace with >= 0.2.0 when available
@@ -57,10 +58,10 @@ if [[ "${CIRCLECI:-false}" = "true" ]]; then
   # if CircleCI, run tests from inside a container so they can talk to the libri nodes; compiled artifacts should be
   # fine to copy b/t the CI container and the test-runner container b/c they share the same image
   docker run --name "test-runner" --net=libri -d --entrypoint=tail ${CI_IMAGE} -f /dev/null
-  docker cp ${LOCAL_DIR} test-runner:${LOCAL_DIR}
+  docker cp ${REPO_DIR} test-runner:${REPO_DIR}
   librarian_addrs=${librarian_docker_addrs}
   export librarian_addrs
-  docker exec test-runner ${LOCAL_DIR}/node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
+  docker exec test-runner ${REPO_DIR}/node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
 else
   # assuming running locally, where mapped docker ports are forwarded to localhost
   librarian_addrs=${librarian_localhost_addrs}
