@@ -5,16 +5,11 @@ set -eou pipefail
 
 # local and filesystem constants
 LOCAL_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-LOCAL_TEST_DATA_DIR="${LOCAL_DIR}/data"
-
-# get test data if it doesn't exist
-if [[ ! -d "${LOCAL_TEST_DATA_DIR}" ]]; then
-    ${LOCAL_DIR}/get-test-data.sh
-fi
 
 # container command contants
 VERSION="snapshot" # TODO (drausin) replace with >= 0.2.0 when available
 IMAGE="daedalus2718/libri:${VERSION}"
+CI_IMAGE="circleci/node:4"
 KEYCHAIN_DIR="/keychains"  # inside container
 CONTAINER_TEST_DATA_DIR="/test-data"
 LIBRI_PASSPHRASE="test passphrase"  # bypass command-line entry
@@ -32,7 +27,8 @@ docker network create libri
 
 echo
 echo "starting librarian peers..."
-librarian_addrs=""
+librarian_docker_addrs=""
+librarian_localhost_addrs=""
 for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
     port=$((20100+c))
     name="librarian-${c}"
@@ -44,21 +40,36 @@ for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
         --publicHost ${name} \
         --localPort ${port} \
         --bootstraps "librarian-0:20100"
-    librarian_addrs="${name}:${port},${librarian_addrs}"
+    librarian_docker_addrs="${name}:${port},${librarian_docker_addrs}"
+    librarian_localhost_addrs="localhost:${port},${librarian_localhost_addrs}"
 done
-librarian_addrs=${librarian_addrs::-1}  # remove trailing space
+
+# remove trailing spaces
+librarian_docker_addrs=${librarian_docker_addrs::-1}
+librarian_localhost_addrs=${librarian_localhost_addrs::-1}
 sleep 5
 
 echo
 echo "testing librarians health..."
-docker run --rm --net=libri ${IMAGE} test health -a "${librarian_addrs}"
+docker run --rm --net=libri ${IMAGE} test health -a "${librarian_docker_addrs}"
 
-# run tests
-./node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
+if [[ "${CIRCLECI:-false}" = "true" ]]; then
+  # if CircleCI, run tests from inside a container so they can talk to the libri nodes; compiled artifacts should be
+  # fine to copy b/t the CI container and the test-runner container b/c they share the same image
+  docker run --name "test-runner" --net=libri -d --entrypoint=tail ${CI_IMAGE} -f /dev/null
+  docker cp ${LOCAL_DIR} test-runner:${LOCAL_DIR}
+  librarian_addrs=${librarian_docker_addrs}
+  export librarian_addrs
+  docker exec test-runner ${LOCAL_DIR}/node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
+else
+  # assuming running locally, where mapped docker ports are forwarded to localhost
+  librarian_addrs=${librarian_localhost_addrs}
+  export librarian_addrs
+  ./node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
+fi
 
 echo
 echo "cleaning up..."
-rm -f ${LOCAL_TEST_DATA_DIR}/downloaded.*
 docker ps | grep 'libri' | awk '{print $1}' | xargs -I {} docker stop {} || true
 docker ps -a | grep 'libri' | awk '{print $1}' | xargs -I {} docker rm {} || true
 docker network list | grep 'libri' | awk '{print $2}' | xargs -I {} docker network rm {} || true
