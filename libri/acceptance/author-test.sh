@@ -57,7 +57,7 @@ docker run --rm --net=libri ${IMAGE} test health -a "${librarian_docker_addrs}"
 if [[ "${CIRCLECI:-false}" = "true" ]]; then
   # if CircleCI, run tests from inside a container so they can talk to the libri nodes; compiled artifacts should be
   # fine to copy b/t the CI container and the test-runner container b/c they share the same image
-  docker run --name "test-runner" --net=libri -d --entrypoint=tail ${CI_IMAGE} -f /dev/null
+  docker run --name "test-runner" --net=libri -w=${REPO_DIR} -d --entrypoint=tail ${CI_IMAGE} -f /dev/null
   docker cp ${REPO_DIR} test-runner:${REPO_DIR}
   librarian_addrs=${librarian_docker_addrs}
   export librarian_addrs
