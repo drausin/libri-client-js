@@ -48,7 +48,6 @@ export class Signer {
         sigBytes.set(sig.r.toArrayLike(Uint8Array, 'be'), 0);
         sigBytes.set(sig.s.toArrayLike(Uint8Array, 'be'), 32);
         const encodedSig = base64url.encode(sigBytes.buffer);
-        console.log(signingString + '.' + encodedSig);
         return signingString + '.' + encodedSig;
       });
     });

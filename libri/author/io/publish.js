@@ -87,6 +87,7 @@ export class Publisher {
         // TODO (drausin) add CallOptions w/ deadline after metadata
         lc.put(args[0], args[1], (err, rp) => {
           if (err) {
+            console.log(args[0].toObject(), args[1].toObject());
             reject(err);
             return;
           }
@@ -140,7 +141,8 @@ export class Acquirer {
       return new Promise((resolve, reject) => {
         // TODO (drausin) add CallOptions w/ deadline after metadata
         lc.get(rq, metadata, (err, rp) => {
-          if (err !== null) {
+          if (err) {
+            console.log(rq.toObject(), metadata.toObject());
             reject(err);
           }
           resolve(rp);
