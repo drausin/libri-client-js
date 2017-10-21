@@ -20,34 +20,42 @@ const selfReaderKeys = keychain.newKeychain(3);
 const a = author.newAuthor(config, clientID, authorKeys, selfReaderKeys);
 
 test('can upload & download an 8 KB pdf', () => {
+  expect.assertions(1);
   return testUploadDownload(8 * 1024, 'application/x-pdf');
 });
 
 test('can upload & download a 256 KB pdf', () => {
+  expect.assertions(1);
   return testUploadDownload(256 * 1024, 'application/x-pdf');
 });
 
 test('can upload & download a 4 MB pdf', () => {
+  expect.assertions(1);
   return testUploadDownload(4 * 1024 * 1024, 'application/x-pdf');
 });
 
 test('can upload & download a 10 MB pdf', () => {
+  expect.assertions(1);
   return testUploadDownload(10 * 1024 * 1024, 'application/x-pdf');
 });
 
 test('can upload & download an 8 KB compressed file', () => {
+  expect.assertions(1);
   return testUploadDownload(8 * 1024, 'application/x-gzip');
 });
 
 test('can upload & download a 256 KB compressed file', () => {
+  expect.assertions(1);
   return testUploadDownload(256 * 1024, 'application/x-gzip');
 });
 
 test('can upload & download a 4 MB compressed file', () => {
+  expect.assertions(1);
   return testUploadDownload(4 * 1024 * 1024, 'application/x-gzip');
 });
 
 test('can upload & download a 10 MB compressed file', () => {
+  expect.assertions(1);
   return testUploadDownload(10 * 1024 * 1024, 'application/x-gzip');
 });
 
@@ -62,7 +70,6 @@ function testUploadDownload(contentSize, mediaType) {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
   const originalContent = testing.newCompressibleBytes(rng, contentSize);
-  expect.assertions(1);
   return a.upload(originalContent, mediaType).then((envDocKey) => {
     return envDocKey.key;
   }).then((envKey) => {
