@@ -20,7 +20,7 @@ const selfReaderKeys = keychain.newKeychain(3);
 const a = author.newAuthor(config, clientID, authorKeys, selfReaderKeys);
 
 test('can upload & download an 8 KB pdf', () => {
-  return testUploadDownload(1024, 'application/x-pdf');
+  return testUploadDownload(8 * 1024, 'application/x-pdf');
 });
 
 /*
@@ -40,7 +40,7 @@ test('can upload & download a 10 MB pdf', () => {
 
 test('can upload & download an 8 KB compressed file', () => {
   expect.assertions(1);
-  return testUploadDownload(1024, 'application/x-gzip');
+  return testUploadDownload(8 * 1024, 'application/x-gzip');
 });
 
 test('can upload & download a 256 KB compressed file', () => {

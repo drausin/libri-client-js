@@ -32,6 +32,7 @@ librarian_docker_addrs=""
 librarian_localhost_addrs=""
 for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
     port=$((20100+c))
+    metricsPort=$((20200+c))
     name="librarian-${c}"
     docker run --name "${name}" --net=libri -d -p ${port}:${port} ${IMAGE} \
         librarian start \
@@ -40,6 +41,7 @@ for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
         --publicPort ${port} \
         --publicHost ${name} \
         --localPort ${port} \
+        --localMetricsPort ${metricsPort} \
         --bootstraps "librarian-0:20100"
     librarian_docker_addrs="${name}:${port},${librarian_docker_addrs}"
     librarian_localhost_addrs="localhost:${port},${librarian_localhost_addrs}"
@@ -57,13 +59,14 @@ docker run --rm --net=libri ${IMAGE} test health -a "${librarian_docker_addrs}"
 if [[ "${CIRCLECI:-false}" = "true" ]]; then
   # if CircleCI, run tests from inside a container so they can talk to the libri nodes; compiled artifacts should be
   # fine to copy b/t the CI container and the test-runner container b/c they share the same image
-  docker run --name "test-runner" --net=libri -w=${REPO_DIR} -d --entrypoint=tail ${CI_IMAGE} -f /dev/null
-  docker cp ${REPO_DIR} test-runner:${REPO_DIR}
+  docker run --name "test-runner" --net=libri -w=${REPO_DIR} --rm -d --entrypoint=tail ${CI_IMAGE} -f /dev/null
+  docker cp ${REPO_DIR} test-runner:${REPO_DIR}/..
   librarian_addrs=${librarian_docker_addrs}
   export librarian_addrs
   docker exec test-runner ${REPO_DIR}/node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
 else
-  # assuming running locally, where mapped docker ports are forwarded to localhost
+  # assuming running locally, where mapped docker ports are forwarded to localhost, so tests run on local machine
+  # can talk with libri containers
   librarian_addrs=${librarian_localhost_addrs}
   export librarian_addrs
   ./node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
