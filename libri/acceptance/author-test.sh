@@ -32,16 +32,14 @@ librarian_docker_addrs=""
 librarian_localhost_addrs=""
 for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
     port=$((20100+c))
-    metricsPort=$((20200+c))
     name="librarian-${c}"
-    docker run --name "${name}" --net=libri -d -p ${port}:${port} -p ${metricsPort}:${metricsPort} ${IMAGE} \
+    docker run --name "${name}" --net=libri -d -p ${port}:${port} ${IMAGE} \
         librarian start \
         --logLevel debug \
         --nSubscriptions 0 \
         --publicPort ${port} \
         --publicHost ${name} \
         --localPort ${port} \
-        --localMetricsPort ${metricsPort} \
         --bootstraps "librarian-0:20100"
     librarian_docker_addrs="${name}:${port},${librarian_docker_addrs}"
     librarian_localhost_addrs="localhost:${port},${librarian_localhost_addrs}"
