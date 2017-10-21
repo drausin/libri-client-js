@@ -34,7 +34,7 @@ for c in $(seq 0 $((${N_LIBRARIANS} - 1))); do
     port=$((20100+c))
     metricsPort=$((20200+c))
     name="librarian-${c}"
-    docker run --name "${name}" --net=libri -d -p ${port}:${port} ${IMAGE} \
+    docker run --name "${name}" --net=libri -d -p ${port}:${port} -p ${metricsPort}:${metricsPort} ${IMAGE} \
         librarian start \
         --logLevel debug \
         --nSubscriptions 0 \
