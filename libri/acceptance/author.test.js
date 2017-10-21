@@ -23,7 +23,6 @@ test('can upload & download an 8 KB pdf', () => {
   return testUploadDownload(8 * 1024, 'application/x-pdf');
 });
 
-/*
 test('can upload & download a 256 KB pdf', () => {
   return testUploadDownload(256 * 1024, 'application/x-pdf');
 });
@@ -57,7 +56,6 @@ test('can upload & download a 10 MB compressed file', () => {
   expect.assertions(1);
   return testUploadDownload(10 * 1024 * 1024, 'application/x-gzip');
 });
-*/
 
 /**
  * Test uploading and downloading content of given size and media type.
