@@ -30,6 +30,8 @@ export class UniformBalancer {
     if (this.clients[i] === undefined) {
       this.clients[i] = new libgrpc.LibrarianClient(this.addresses[i],
           grpc.credentials.createInsecure());
+      let deadline = new Date();
+      deadline.setSeconds(deadline.getSeconds() + 5);
     }
     return this.clients[i];
   }

@@ -35,8 +35,8 @@ export class ID {
  * @return {ID}
  */
 export function newRandom(): ID {
-  const entropy = new Uint8Array(32);
-  window.crypto.getRandomValues(entropy);
+  const entropy = new Uint8Array(33);
+  window.crypto.getRandomValues(entropy.slice(0, 32));
   return new ID(curve.genKeyPair({'entropy': entropy}));
 }
 
