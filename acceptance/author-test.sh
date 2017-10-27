@@ -72,7 +72,7 @@ else
   # can talk with libri containers
   librarian_addrs=${librarian_localhost_addrs}
   export librarian_addrs
-  ./node_modules/jest-cli/bin/jest.js --testPathPattern 'libri/acceptance/.+.test.js'
+  ./node_modules/jest-cli/bin/jest.js --testPathPattern 'acceptance/.+.test.js'
 fi
 
 echo

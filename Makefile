@@ -1,7 +1,9 @@
 
+.PHONY: acceptance
+
 acceptance:
 	@echo "--> Running acceptance tests"
-	@./libri/acceptance/author-test.sh
+	@./acceptance/author-test.sh
 
 lint:
 	@echo "--> Running linters"
@@ -18,4 +20,4 @@ proto:
 
 test:
 	@echo "--> Running unit tests"
-	@./node_modules/jest-cli/bin/jest.js --testPathIgnorePatterns 'libri/acceptance/.+.test.js'
+	@npm test
