@@ -3,11 +3,11 @@ const WebCrypto = require('node-webcrypto-ossl');
 window.crypto = new WebCrypto();
 
 const seedrandom = require('seedrandom');
-const authorconfig = require('../author/config');
-const author = require('../author/author');
-const ecid = require('../common/ecid');
-const keychain = require('../author/keychain');
-const testing = require('../common/testing');
+const authorconfig = require('../lib/libri/author/config');
+const author = require('../lib/libri/author/author');
+const ecid = require('../lib/libri/common/ecid');
+const keychain = require('../lib/libri/author/keychain');
+const testing = require('../lib/libri/common/testing');
 
 // some constants we'll use across all tests
 const rng = seedrandom(0);
