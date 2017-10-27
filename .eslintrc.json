@@ -13,10 +13,12 @@
     }
   },
   "plugins": [
-    "jest"
+    "jest",
+    "react"
   ],
   "rules": {
     "strict": 2,
-    "switch-colon-spacing": 0
+    "switch-colon-spacing": 0,
+    "react/jsx-uses-vars": [2]
   }
 }
