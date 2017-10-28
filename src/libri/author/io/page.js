@@ -1,6 +1,6 @@
 // @flow
 
-const enc = require('./enc');
+import * as enc from './enc';
 import {EEK} from './keys';
 import {Page} from '../../librarian/api/documents_pb';
 const webcrypto = window.crypto.subtle;

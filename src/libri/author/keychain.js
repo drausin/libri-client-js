@@ -1,8 +1,8 @@
 // @flow
 
-const seedrandom = require('seedrandom');
 import * as id from '../common/id';
 import * as ecid from '../common/ecid';
+const seedrandom = require('seedrandom');
 
 /**
  * A collection of ECDSA private keys.
