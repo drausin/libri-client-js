@@ -1,3 +1,5 @@
-libri/librarian/api/documents_pb.js
-libri/librarian/api/librarian_pb.js
-libri/librarian/api/librarian_grpc_pb.js
+src/libri/librarian/api/documents_pb.js
+src/libri/librarian/api/librarian_pb.js
+src/libri/librarian/api/librarian_grpc_pb.js
+src/registerServiceWorker.js
+src/App.js
